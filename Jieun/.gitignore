@@ -2,7 +2,9 @@
 # Edit at https://www.toptal.com/developers/gitignore?templates=visualstudiocode,vim,webstorm,macos,linux,windows,zsh,node
 .env
 node_modules/
+
 db/schema.sql
+
 ### Linux ###
 *~
 
