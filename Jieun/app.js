@@ -19,6 +19,8 @@ const dataSource = new DataSource({
 dataSource.initialize()
     .then(() => {
         console.log("Data Source has been initialized!")
+    }).catch((err) => {
+        console.log("Data Source Initialize Error : ", err)
     })
 
 const app = express(); 
