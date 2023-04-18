@@ -34,6 +34,7 @@ app.get('/ping', function (req, res, next){
 
 app.post('/users/signup', async function (req, res) {
     const { email, password, name, age, phone_number } = req.body
+
     await dataSource.query(`
         INSERT INTO users (
             email,
@@ -49,7 +50,8 @@ app.post('/users/signup', async function (req, res) {
             ?
         )
     `,[email, password, name, age, phone_number])
-    res.status(200).json({message: 'userCreated'})
+
+    res.status(201).json({message: 'userCreated'})
 });
 
 const PORT = process.env.PORT;
