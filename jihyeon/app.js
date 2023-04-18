@@ -33,7 +33,7 @@ app.get('/ping', function (req, res, next){
 });
 
 app.post('/users/signup', async function (req, res) {
-    const { email, password, name, age, phone_number } = req.body
+    const { email, password, name, age, phoneNumber } = req.body
 
     await dataSource.query(`
         INSERT INTO users (
@@ -49,7 +49,7 @@ app.post('/users/signup', async function (req, res) {
             ?,
             ?
         )
-    `,[email, password, name, age, phone_number])
+    `,[email, password, name, age, phoneNumber])
 
     res.status(201).json({message: 'userCreated'})
 });
