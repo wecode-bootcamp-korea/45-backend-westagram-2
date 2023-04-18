@@ -1,5 +1,5 @@
 {
-  "name": "inseok_45",
+  "name": "jihyeon",
   "version": "1.0.0",
   "description": "",
   "main": "app.js",
@@ -12,13 +12,10 @@
   "license": "ISC",
   "dependencies": {
     "cors": "^2.8.5",
-    "dbmate": "^2.2.0",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
+    "morgan": "^1.10.0",
     "mysql2": "^3.2.3",
     "typeorm": "^0.3.15"
-  },
-  "devDependencies": {
-    "morgan": "^1.10.0"
   }
 }
