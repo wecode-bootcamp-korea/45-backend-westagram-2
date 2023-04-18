@@ -1,5 +1,5 @@
-# Created by https://www.toptal.com/developers/gitignore/api/visualstudiocode,vim,webstorm,windows,macos,linux,zsh,node
-# Edit at https://www.toptal.com/developers/gitignore?templates=visualstudiocode,vim,webstorm,windows,macos,linux,zsh,node
+# Created by https://www.toptal.com/developers/gitignore/api/linux,macos,windows,node,visualstudiocode,vim,webstorm,zsh
+# Edit at https://www.toptal.com/developers/gitignore?templates=linux,macos,windows,node,visualstudiocode,vim,webstorm,zsh
 
 db/schema.sql
 
@@ -399,4 +399,8 @@ zsdoc/data
 /tests/_output/*
 !/tests/_output/.gitkeep
 
+<<<<<<< HEAD
+# End of https://www.toptal.com/developers/gitignore/api/linux,macos,windows,node,visualstudiocode,vim,webstorm,zsh
+=======
 # End of https://www.toptal.com/developers/gitignore/api/visualstudiocode,vim,webstorm,windows,macos,linux,zsh,node
+>>>>>>> main
