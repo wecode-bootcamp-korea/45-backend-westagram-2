@@ -29,27 +29,8 @@ app.use(express.json());
 app.use(cors());
 app.use(morgan('dev'));
 
-app.post('/users/signup', async function(req, res, next) {
-    const { name, email, password, phoneNumber } = req.body
-
-    await dataSource.query(
-        `INSERT INTO users (
-            name,
-            email,
-            password,
-            phoneNumber
-        ) VALUES (
-            ?,
-            ?,
-            ?,
-            ?
-        )`, [name, email, password, phoneNumber]
-    );
-
-    res.status(201).json({message : "userCreated"});
-})
-
-app.post('/users/signup', async function(req, res, next) {
+//Create a user
+app.post('/users_signup', async function(req, res, next) {
     const { name, profileImage, email, password, phoneNumber } = req.body
 
     await dataSource.query(
@@ -71,23 +52,42 @@ app.post('/users/signup', async function(req, res, next) {
     res.status(201).json({message : "userCreated"});
 })
 
-app.post('/user/posts/register', async function(req, res, next) {
-    const { title, imageUrl, content } = req.body
+//Create a post
+app.post('/user_posts_register', async function(req, res, next) {
+    const { user_id, title, content, imageUrl } = req.body
 
     await dataSource.query(
         `INSERT INTO posts (
+            user_id,
             title,
-            imageUrl,
-            content
+            content,
+            imageUrl
         ) VALUES (
             ?,
+            ?,
+            ?,
             ?
-        )`, [title, imageUrl, content]
+        )`, [user_id, title, content, imageUrl]
     );
 
-    res.status(201).json({message : "postCreated"});
+    res.status(201).json({message : "postGetSuccess"});
 })
 
+//Get all posts
+app.get('/user_posts_view', async function(req, res, next) {
+    const posts = await dataSource.query(
+        `SELECT
+            posts.user_id as userId,
+            users.profileImage as userProfileImage,
+            posts.id as postingId,
+            posts.imageUrl as postingImageUrl,
+            posts.content as postingContent
+        FROM posts
+        INNER JOIN users ON posts.user_id = users.id;`
+            
+        ) 
+        res.status(200).json({message : "postCreated", data: posts});
+    })
 
 const PORT = process.env.PORT;
 
