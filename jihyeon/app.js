@@ -1,9 +1,8 @@
+require('dotenv').config();
+
+const morgan = require ("morgan");
 const express = require('express');
 const cors = require('cors');
-const morgan = require ("morgan");
-const http = require ("http");
-require("dotenv").config();
-
 const { DataSource } = require('typeorm');
 
 const dataSource = new DataSource({
@@ -17,8 +16,11 @@ const dataSource = new DataSource({
 
 dataSource.initialize()
     .then(() => {
-       console.log("Data Source has been initialized!")
-   })
+        console.log("Data Source has been initialized!")
+    })
+    .catch((err) => {
+        console.log("Error during Data Source initialization", err)
+    })
 
 const app = express();
 
@@ -27,14 +29,13 @@ app.use(cors());
 app.use(morgan('dev'));
 
 app.get('/ping', function (req, res, next){
-    res.json({message: 'pong'})
+    return res.status(200).json({message: 'pong'})
 });
 
-const server = http.createServer(app);
 const PORT = process.env.PORT;
 
 const start = async () => {
-    server.listen(PORT, () => console.log(`server is listening on ${PORT}`));
+    app.listen(PORT, () => console.log(`server is listening on ${PORT}`));
 }
 
 start()
