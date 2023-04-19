@@ -1,15 +1,14 @@
 -- migrate:up
-CREATE TABLE users (
+CREATE TABLE posts (
     id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    profileImage  VARCHAR(2000) NOT NULL,
-    email VARCHAR(200) NOT NULL UNIQUE,
-    password VARCHAR(200) NOT NULL,
-    phoneNumber VARCHAR(100) NOT NULL,
+    user_id INT NOT NULL,
+    title VARCHAR(100) NOT NULL,
+    content VARCHAR(2000) NOT NULL,
+    imageUrl VARCHAR(2000) NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users (id),
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-
 )
 
 -- migrate:down
-DROP TABLE users;
+DROP TABLE posts;
