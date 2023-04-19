@@ -4,7 +4,7 @@ create table users (
   email varchar(100) not null unique,
   password varchar(1000) not null ,
   description varchar(1000) null,
-  profie_img varchar(2000) null ,
+  profile_img varchar(2000) null ,
   created_at timestamp not null default current_timestamp,
   updated_at timestamp not null default current_timestamp on update current_timestamp
 );
