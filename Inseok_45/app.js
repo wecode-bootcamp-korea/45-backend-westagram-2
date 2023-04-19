@@ -33,7 +33,7 @@ app.get('/ping', (req, res) => {
 });
 
 app.get('/users/post/view', async (req, res) => {
-    await dataSource.query(
+    const viewPost = await dataSource.query(
         `SELECT
           users.id as userId,
           posts.id as postingId,
@@ -41,11 +41,10 @@ app.get('/users/post/view', async (req, res) => {
           posts.post_paragraph as postingContent
         FROM users
         INNER JOIN posts ON posts.user_id = users.id`
-            ,(err, rows) => {
-    res.status(200).json({ "data": rows });
-            }
     );
-})
+
+    res.status(200).json({ data: viewPost });
+});
 
 app.get('/users/post/view/4', async (req, res) => {
     const [userPost] = await dataSource.query(
@@ -59,7 +58,6 @@ app.get('/users/post/view/4', async (req, res) => {
         FROM users`
     );
 
-    console.log(userPost);
     return res.status(200).json({ data: userPost }); 
 });
 
@@ -75,10 +73,10 @@ app.post('/users/signup', async (req, res) => {
             age,
             user_name,
             password
-        ) VALUES ( ?, ?, ?, ?, ?, ?, ?)
-        `, [firstName, lastName, email, phoneNumber, age, userName, password]
+        ) VALUES ( ?, ?, ?, ?, ?, ?, ?)`, [firstName, lastName, email, phoneNumber, age, userName, password]
     );
-    res.status(201).json({ message: "sign-up complete" });
+
+    return res.status(201).json({ message: "sign-up complete" });
 });
 
 app.post('/users/post', async (req, res) => {
@@ -89,10 +87,10 @@ app.post('/users/post', async (req, res) => {
             user_id,
             post_image,
             post_paragraph
-        ) VALUES ( ?, ?, ?)
-        `, [userId, postImage, postParagraph]
+        ) VALUES ( ?, ?, ?)`, [userId, postImage, postParagraph]
     );
-    res.status(201).json({ message: "post created!" });
+
+    return res.status(201).json({ message: "post created!" });
 });
 
 const port = process.env.PORT;
