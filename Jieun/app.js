@@ -91,7 +91,7 @@ app.get('/posts-view-all', async (req, res, next) => {
 )
 
 
-app.get('/one-user-posts-view/user/:userId', async (req, res, next) => {
+app.get('/one-user-posts-view/userId/:userId', async (req, res, next) => {
     
     const {userId} = req.params;
 
@@ -120,37 +120,50 @@ app.get('/one-user-posts-view/user/:userId', async (req, res, next) => {
 )
 
 
-app.patch('/posts/update/:postId', async (req, res, next) => {
-    const {postId} = req.params;
-    const {content} = req.body;
+app.patch('/posts/update/postId/:postId', async (req, res, next) => {
+  const {postId} = req.params;
+  const {content} = req.body;
 
-    await dataSource.query(
-      `UPDATE posts
-          SET content = ?
-          WHERE posts.id = ?;
-          
-      `, [content, postId]
-    )
-    
-    const posts = await dataSource.query(
-      `
-      SELECT
-        users.id as userId, 
-        users.name as userName,
-        posts.id as postingId,
-        posts.title as postingTitle,
-        posts.content as postingContent
-      FROM posts
-      JOIN users ON users.id = posts.user_id
-      WHERE posts.id = ?
-      ;
-      `, [postId]
-    )
+  await dataSource.query(
+    `UPDATE posts
+        SET content = ?
+        WHERE posts.id = ?;
         
-    res.status(201).json({ message : "successfully updated", data: posts});
+    `, [content, postId]
+  );
+  
+  const posts = await dataSource.query(
+    `
+    SELECT
+      users.id as userId, 
+      users.name as userName,
+      posts.id as postingId,
+      posts.title as postingTitle,
+      posts.content as postingContent
+    FROM posts
+    JOIN users ON users.id = posts.user_id
+    WHERE posts.id = ?
+    ;
+    `, [postId]
+  );
+
+  res.status(201).json({ message : "successfully updated", data: posts});
+  }
+)
 
 
-    }
+app.delete('/posts/delete/post/:postId', async (req, res, next) => {
+  const {postId} = req.params;
+
+  await dataSource.query(
+    `DELETE
+     FROM posts
+     WHERE posts.id = ?;
+    `, [postId]
+    );
+
+    res.status(204).json({ message : "postingDeleted" });
+  }
 )
 
 const PORT = process.env.PORT;
