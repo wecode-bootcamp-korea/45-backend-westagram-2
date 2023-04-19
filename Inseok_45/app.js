@@ -46,7 +46,7 @@ app.get('/users/post/view', async (req, res) => {
     res.status(200).json({ data: viewPost });
 });
 
-app.get('/users/post/view/4', async (req, res) => {
+app.get('/users/post/view/', async (req, res) => {
     const [userPost] = await dataSource.query(
         `SELECT
           users.id AS userId,
