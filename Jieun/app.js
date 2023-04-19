@@ -30,7 +30,7 @@ app.use(cors());
 app.use(morgan('dev'));
 
 //Create a user
-app.post('/users_signup', async function(req, res, next) {
+app.post('/users_signup', async (req, res, next) => {
     const { name, profileImage, email, password, phoneNumber } = req.body
 
     await dataSource.query(
@@ -53,7 +53,7 @@ app.post('/users_signup', async function(req, res, next) {
 })
 
 //Create a post
-app.post('/user_posts_register', async function(req, res, next) {
+app.post('/user_posts_register', async (req, res, next) => {
     const { user_id, title, content, imageUrl } = req.body
 
     await dataSource.query(
@@ -70,11 +70,11 @@ app.post('/user_posts_register', async function(req, res, next) {
         )`, [user_id, title, content, imageUrl]
     );
 
-    res.status(201).json({message : "postGetSuccess"});
+    res.status(201).json({message : "postCreated"});
 })
 
 //Get all posts
-app.get('/user_posts_view', async function(req, res, next) {
+app.get('/users_posts_view_all', async (req, res, next) => {
     const posts = await dataSource.query(
         `SELECT
             posts.user_id as userId,
@@ -86,8 +86,39 @@ app.get('/user_posts_view', async function(req, res, next) {
         INNER JOIN users ON posts.user_id = users.id;`
             
         ) 
-        res.status(200).json({message : "postCreated", data: posts});
-    })
+        res.status(200).json({message : "postGetSuccess", data: posts});
+    }
+)
+
+//Get one user posts
+
+app.get('/one_user_posts_view/user/:userId', async (req, res, next) => {
+    
+    let userId = req.params.userId;
+
+    const posts = await dataSource.query(
+        `SELECT
+            users.id as userId,
+            users.profileImage as userProfileImage,
+            (
+                SELECT
+                JSON_ARRAYAGG(
+                    JSON_OBJECT(
+                        "postingId", posts.id,
+                        "postingImageUrl", posts.imageUrl,
+                        "postingContent", posts.content
+                    )
+                )
+                FROM posts
+                JOIN users ON users.id = posts.user_id
+                WHERE users.id = ${userId}
+            ) as postings         
+            FROM users
+            WHERE users.id = ${userId};`
+        ) 
+        res.status(200).json({message : "postGetSuccess", userId, data: posts});
+    }
+)
 
 const PORT = process.env.PORT;
 
