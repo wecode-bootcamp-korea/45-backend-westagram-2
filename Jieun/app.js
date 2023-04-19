@@ -29,17 +29,17 @@ app.use(express.json());
 app.use(cors());
 app.use(morgan('dev'));
 
-//Create a user
-app.post('/users_signup', async (req, res, next) => {
+
+app.post('/users/sign-up', async (req, res, next) => {
     const { name, profileImage, email, password, phoneNumber } = req.body
 
     await dataSource.query(
         `INSERT INTO users (
             name,
-            profileImage,
+            profile_image,
             email,
             password,
-            phoneNumber
+            phone_number
         ) VALUES (
             ?,
             ?,
@@ -52,35 +52,35 @@ app.post('/users_signup', async (req, res, next) => {
     res.status(201).json({message : "userCreated"});
 })
 
-//Create a post
-app.post('/user_posts_register', async (req, res, next) => {
-    const { user_id, title, content, imageUrl } = req.body
+
+app.post('/posts/register', async (req, res, next) => {
+    const { userId, title, content, imageUrl } = req.body
 
     await dataSource.query(
         `INSERT INTO posts (
             user_id,
             title,
             content,
-            imageUrl
+            image_url
         ) VALUES (
             ?,
             ?,
             ?,
             ?
-        )`, [user_id, title, content, imageUrl]
+        )`, [userId, title, content, imageUrl]
     );
 
     res.status(201).json({message : "postCreated"});
 })
 
-//Get all posts
-app.get('/users_posts_view_all', async (req, res, next) => {
+
+app.get('/posts-view-all', async (req, res, next) => {
     const posts = await dataSource.query(
         `SELECT
             posts.user_id as userId,
-            users.profileImage as userProfileImage,
+            users.profile_image as userProfileImage,
             posts.id as postingId,
-            posts.imageUrl as postingImageUrl,
+            posts.image_url as postingImageUrl,
             posts.content as postingContent
         FROM posts
         INNER JOIN users ON posts.user_id = users.id;`
@@ -90,22 +90,21 @@ app.get('/users_posts_view_all', async (req, res, next) => {
     }
 )
 
-//Get one user posts
 
-app.get('/one_user_posts_view/user/:userId', async (req, res, next) => {
+app.get('/one-user-posts-view/user/:userId', async (req, res, next) => {
     
-    let userId = req.params.userId;
+    const userId = req.params.userId;
 
     const posts = await dataSource.query(
         `SELECT
             users.id as userId,
-            users.profileImage as userProfileImage,
+            users.profile_image as userProfileImage,
             (
                 SELECT
                 JSON_ARRAYAGG(
                     JSON_OBJECT(
                         "postingId", posts.id,
-                        "postingImageUrl", posts.imageUrl,
+                        "postingImageUrl", posts.image_url,
                         "postingContent", posts.content
                     )
                 )
