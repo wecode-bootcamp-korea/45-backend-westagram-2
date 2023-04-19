@@ -93,7 +93,7 @@ app.get('/posts-view-all', async (req, res, next) => {
 
 app.get('/one-user-posts-view/user/:userId', async (req, res, next) => {
     
-    const userId = req.params.userId;
+    const {userId} = req.params;
 
     const posts = await dataSource.query(
         `SELECT
@@ -110,12 +110,46 @@ app.get('/one-user-posts-view/user/:userId', async (req, res, next) => {
                 )
                 FROM posts
                 JOIN users ON users.id = posts.user_id
-                WHERE users.id = ${userId}
+                WHERE users.id = ?
             ) as postings         
             FROM users
-            WHERE users.id = ${userId};`
-        ) 
+            WHERE users.id = ?;`, [userId, userId]
+        )
         res.status(200).json({message : "postGetSuccess", userId, data: posts});
+    }
+)
+
+
+app.patch('/posts/update/:postId', async (req, res, next) => {
+    const {postId} = req.params;
+    const {content} = req.body;
+
+    await dataSource.query(
+      `UPDATE posts
+          SET content = ?
+          WHERE posts.id = ?;
+          
+      `, [content, postId]
+    )
+    
+    const posts = await dataSource.query(
+      `
+      SELECT
+        users.id as userId, 
+        users.name as userName,
+        posts.id as postingId,
+        posts.title as postingTitle,
+        posts.content as postingContent
+      FROM posts
+      JOIN users ON users.id = posts.user_id
+      WHERE posts.id = ?
+      ;
+      `, [postId]
+    )
+        
+    res.status(201).json({ message : "successfully updated", data: posts});
+
+
     }
 )
 
