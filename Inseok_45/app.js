@@ -32,6 +32,24 @@ app.get('/ping', (req, res) => {
     res.status(200).json({ message: "pong" });
 });
 
+app.post('/users/signup', async (req, res) => {
+    const { firstName, lastName, email, phoneNumber, age, userName, password } = req.body
+
+    await dataSource.query(
+        `INSERT INTO users(
+            first_name,
+            last_name,
+            email,
+            phone_number,
+            age,
+            user_name,
+            password
+        ) VALUES ( ?, ?, ?, ?, ?, ?, ?);
+        `, [firstName, lastName, email, phoneNumber, age, userName, password]
+    );
+    res.status(201).json({ message: "sign-up complete" });
+});
+
 const port = process.env.PORT;
 const start = async () => {
     app.listen(port, () => console.log(`Server is listening on ${port}`));
