@@ -32,7 +32,7 @@ app.get('/ping', (req, res) => {
     res.status(200).json({ message: "pong" });
 });
 
-app.post('/signup', async (req, res) => {
+app.post('/users/signup', async (req, res) => {
     const { firstName, lastName, email, phoneNumber, age, userName, password } = req.body
 
     await dataSource.query(
