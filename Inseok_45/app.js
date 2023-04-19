@@ -32,6 +32,37 @@ app.get('/ping', (req, res) => {
     res.status(200).json({ message: "pong" });
 });
 
+app.get('/users/post/view', async (req, res) => {
+    await dataSource.query(
+        `SELECT
+          users.id as userId,
+          posts.id as postingId,
+          posts.post_image as postingImageUrl,
+          posts.post_paragraph as postingContent
+        FROM users
+        INNER JOIN posts ON posts.user_id = users.id`
+            ,(err, rows) => {
+    res.status(200).json({ "data": rows });
+            }
+    );
+})
+
+app.get('/users/post/view/4', async (req, res) => {
+    const [userPost] = await dataSource.query(
+        `SELECT
+          users.id AS userId,
+          (SELECT JSON_ARRAYAGG(JSON_OBJECT("postingId", posts.id,
+          "postImageUrl", posts.post_image,
+          "postContent", posts.post_paragraph))
+        FROM posts
+        WHERE posts.user_id = users.id) AS postings
+        FROM users`
+    );
+
+    console.log(userPost);
+    return res.status(200).json({ data: userPost }); 
+});
+
 app.post('/users/signup', async (req, res) => {
     const { firstName, lastName, email, phoneNumber, age, userName, password } = req.body
 
@@ -44,10 +75,24 @@ app.post('/users/signup', async (req, res) => {
             age,
             user_name,
             password
-        ) VALUES ( ?, ?, ?, ?, ?, ?, ?);
+        ) VALUES ( ?, ?, ?, ?, ?, ?, ?)
         `, [firstName, lastName, email, phoneNumber, age, userName, password]
     );
     res.status(201).json({ message: "sign-up complete" });
+});
+
+app.post('/users/post', async (req, res) => {
+    const { userId, postImage, postParagraph} = req.body
+
+    await dataSource.query(
+        `INSERT INTO posts(
+            user_id,
+            post_image,
+            post_paragraph
+        ) VALUES ( ?, ?, ?)
+        `, [userId, postImage, postParagraph]
+    );
+    res.status(201).json({ message: "post created!" });
 });
 
 const port = process.env.PORT;
