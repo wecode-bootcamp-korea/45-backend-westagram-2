@@ -13,7 +13,7 @@ const dataSource = new DataSource({
     username: process.env.TYPEORM_USERNAME,
     password: process.env.TYPEORM_PASSWORD,
     database: process.env.TYPEORM_DATABASE
-})
+});
 
 dataSource
     .initialize()
@@ -28,46 +28,6 @@ app.use(express.json());
 app.use(cors());
 app.use(morgan('dev')); 
 
-app.get('/ping', (req, res) => {
-    res.status(200).json({ message: "pong" });
-});
-
-app.get('/users/post/view', async (req, res) => {
-    const viewPost = await dataSource.query(
-        `SELECT
-          users.id as userId,
-          posts.id as postingId,
-          posts.post_image as postingImageUrl,
-          posts.post_paragraph as postingContent
-        FROM users
-        INNER JOIN posts ON posts.user_id = users.id`
-    );
-
-    res.status(200).json({ data: viewPost });
-});
-
-app.get('/users/post/view/:userId', async (req, res, next) => {
-
-    var userId = req.params.userId;
-
-    const [userPost] = await dataSource.query(
-        `SELECT
-          users.id AS userId,
-          (SELECT JSON_ARRAYAGG(
-            JSON_OBJECT(
-                "postingId", posts.id,
-                "postImageUrl", posts.post_image,
-                "postContent", posts.post_paragraph))
-        FROM posts 
-        WHERE posts.user_id = users.id && users.id = ${userId}
-          ) AS postings
-        FROM users
-        WHERE users.id = ${userId}
-        `
-    );
-
-    return res.status(200).json({ data: userPost }); 
-});
 
 app.post('/users/signup', async (req, res) => {
     const { firstName, lastName, email, phoneNumber, age, userName, password } = req.body
@@ -100,6 +60,50 @@ app.post('/users/post', async (req, res) => {
 
     return res.status(201).json({ message: "post created!" });
 });
+
+app.get('/users/post/view', async (req, res) => {
+    const viewPost = await dataSource.query(
+        `SELECT
+          users.id as userId,
+          posts.id as postingId,
+          posts.post_image as postingImageUrl,
+          posts.post_paragraph as postingContent
+        FROM users
+        INNER JOIN posts ON posts.user_id = users.id`
+    );
+
+    res.status(200).json({ data: viewPost });
+});
+
+app.get('/users/:userId/post/view', async (req, res, next) => {
+
+    var userId = req.params.userId;
+
+    const [userPost] = await dataSource.query(
+        `SELECT
+          users.id AS userId,
+          (SELECT 
+            JSON_ARRAYAGG(
+            JSON_OBJECT(
+                "postingId", posts.id,
+                "postImageUrl", posts.post_image,
+                "postContent", posts.post_paragraph
+            ))
+        FROM posts 
+        WHERE posts.user_id = users.id && users.id = ?
+          ) AS postings
+        FROM users
+        WHERE users.id = ?
+        `, [userId, userId]
+    );
+
+    return res.status(200).json({ data: userPost }); 
+});
+
+
+
+
+
 
 const port = process.env.PORT;
 const start = async () => {
