@@ -32,7 +32,9 @@ app.use(morgan('dev'));
 app.post('/users/signup', async (req, res) => {
     const { firstName, lastName, email, phoneNumber, age, userName, password } = req.body
 
-//제한 설정
+    if ( !firstName || !lastName || !email || !phoneNumber || !age || !userName || !password){
+        res.status(400).json({ message: "Cannot Sign Up" })
+    }
 
     await dataSource.query(
         `INSERT INTO users(
@@ -150,8 +152,6 @@ app.put('/users/posts/:postId/like', async (req, res, next) => {
 
     var rArr = Object.values(newLike[0]);
     let checkExist = Number(rArr[0]);
-
-    //없을때: checkExist = 0
     
     if(checkExist === 0) {
         await dataSource.query(
