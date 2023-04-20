@@ -16,7 +16,7 @@
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `schema_migrations` (
-  `version` varchar(128) COLLATE utf8mb4_general_ci NOT NULL,ß
+  `version` varchar(128) COLLATE utf8mb4_general_ci NOT NULL,
   PRIMARY KEY (`version`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -32,7 +32,7 @@ CREATE TABLE `users` (
   `email` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
   `password` varchar(1000) COLLATE utf8mb4_general_ci NOT NULL,
   `description` varchar(1000) COLLATE utf8mb4_general_ci DEFAULT NULL,
-  `profie_img` varchar(2000) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `profile_img` varchar(2000) COLLATE utf8mb4_general_ci DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
@@ -61,5 +61,6 @@ CREATE TABLE `users` (
 
 LOCK TABLES `schema_migrations` WRITE;
 INSERT INTO `schema_migrations` (version) VALUES
-  ('20230419080018');
+  ('20230419080018'),
+  ('20230420014948');
 UNLOCK TABLES;
