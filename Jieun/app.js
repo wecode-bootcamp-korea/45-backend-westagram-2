@@ -54,9 +54,8 @@ app.post('/users/sign-up', async (req, res, next) => {
 
 
 app.post('/posts/register', async (req, res, next) => {
-    const { userId, title, content, imageUrl } = req.body
-
-    await dataSource.query(
+  const { userId, title, content, imageUrl } = req.body
+      await dataSource.query(
         `INSERT INTO posts (
             user_id,
             title,
@@ -68,9 +67,9 @@ app.post('/posts/register', async (req, res, next) => {
             ?,
             ?
         )`, [userId, title, content, imageUrl]
-    );
-
-    res.status(201).json({message : "postCreated"});
+      );
+  
+      res.status(201).json({message : "postCreated"});
 })
 
 
@@ -162,9 +161,32 @@ app.delete('/posts/delete/post/:postId', async (req, res, next) => {
     `, [postId]
     );
 
-    res.status(204).json({ message : "postingDeleted" });
+    res.status(200).json({ message : "postingDeleted" });
   }
 )
+
+
+app.post('/users/like/posts', async (req, res, next) => {
+    const { userId, postId } = req.body;
+    try{
+      await dataSource.query(
+        `INSERT INTO likes(
+            user_id,
+            post_id
+        ) VALUES (
+            ?,
+            ?
+        )`, [userId, postId]
+    );
+
+    res.status(201).json({message : "likeCreated"});
+    }
+    catch(err){
+      console.log("duplicateData: ", err)
+      res.status(400).json({message : "duplicateData"});
+    }
+    
+})
 
 const PORT = process.env.PORT;
 
