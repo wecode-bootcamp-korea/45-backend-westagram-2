@@ -4,6 +4,7 @@
 ### dotenv ###
 .env
 
+db/schema.sql
 ### macOS ###
 # General
 .DS_Store
