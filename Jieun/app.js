@@ -53,7 +53,7 @@ app.post('/users/sign-up', async (req, res, next) => {
 })
 
 
-app.post('/posts/register', async (req, res, next) => {
+app.post('/posts', async (req, res, next) => {
   const { userId, title, content, imageUrl } = req.body
       await dataSource.query(
         `INSERT INTO posts (
@@ -73,7 +73,7 @@ app.post('/posts/register', async (req, res, next) => {
 })
 
 
-app.get('/posts-view-all', async (req, res, next) => {
+app.get('/posts', async (req, res, next) => {
     const posts = await dataSource.query(
         `SELECT
             posts.user_id as userId,
@@ -90,7 +90,7 @@ app.get('/posts-view-all', async (req, res, next) => {
 )
 
 
-app.get('/one-user-posts-view/userId/:userId', async (req, res, next) => {
+app.get('/userId/:userId/posts', async (req, res, next) => {
     
     const {userId} = req.params;
 
@@ -119,18 +119,18 @@ app.get('/one-user-posts-view/userId/:userId', async (req, res, next) => {
 )
 
 
-app.patch('/posts/update/postId/:postId', async (req, res, next) => {
+app.patch('/postId/:postId', async (req, res, next) => {
   const {postId} = req.params;
-  const {content} = req.body;
+  const {content, userId} = req.body;
 
+  
   await dataSource.query(
     `UPDATE posts
         SET content = ?
-        WHERE posts.id = ?;
-        
-    `, [content, postId]
+        WHERE posts.id = ? AND posts.user_id = ?;
+    `, [content, postId, userId]
   );
-  
+  console.log(`==================${dataSource.query}===============\n`)
   const posts = await dataSource.query(
     `
     SELECT
@@ -141,17 +141,22 @@ app.patch('/posts/update/postId/:postId', async (req, res, next) => {
       posts.content as postingContent
     FROM posts
     JOIN users ON users.id = posts.user_id
-    WHERE posts.id = ?
+    WHERE posts.id = ? AND posts.user_id = ?
     ;
-    `, [postId]
+    `, [postId, userId]
   );
+  res.status(200).json({ message : "successfully updated", data: posts});
+  // }
 
-  res.status(201).json({ message : "successfully updated", data: posts});
+  // catch(err){
+  //   res.status(400).json({ message : "Please check the data!", err});
+  // }
+
   }
 )
 
 
-app.delete('/posts/delete/post/:postId', async (req, res, next) => {
+app.delete('/postId/:postId', async (req, res, next) => {
   const {postId} = req.params;
 
   await dataSource.query(
@@ -166,7 +171,7 @@ app.delete('/posts/delete/post/:postId', async (req, res, next) => {
 )
 
 
-app.post('/users/like/posts', async (req, res, next) => {
+app.post('/likes', async (req, res, next) => {
     const { userId, postId } = req.body;
     try{
       await dataSource.query(
