@@ -90,7 +90,7 @@ app.get('/users/:userId/post/view', async (req, res, next) => {
                 "postContent", posts.post_paragraph
             ))
         FROM posts 
-        WHERE posts.user_id = users.id && users.id = ?
+        WHERE posts.user_id = users.id AND users.id = ?
           ) AS postings
         FROM users
         WHERE users.id = ?
