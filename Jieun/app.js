@@ -130,7 +130,7 @@ app.patch('/postId/:postId', async (req, res, next) => {
   `, [content, postId, userId]
 );
 
-  if (!updatePost.affectedRows) return res.status(400).json({ message : "Failed, please check the data!"})
+  if (!updatePost.affectedRows) return res.status(400).json({ message : "Failed, ease check the data!"})
  
   const posts = await dataSource.query(
     `
@@ -153,16 +153,20 @@ app.patch('/postId/:postId', async (req, res, next) => {
 
 app.delete('/postId/:postId', async (req, res, next) => {
   const {postId} = req.params;
+  const {userId} = req.body;
 
-  await dataSource.query(
+  const deletePost  = await dataSource.query(
     `DELETE
      FROM posts
-     WHERE posts.id = ?;
-    `, [postId]
+     WHERE posts.id = ? AND posts.user_id = ?;
+    `, [postId, userId]
     );
+
+    if (!deletePost.affectedRows) return res.status(400).json({ message : "Failed, ease check the data!"})
 
     res.status(200).json({ message : "postingDeleted" });
   }
+  
 )
 
 
