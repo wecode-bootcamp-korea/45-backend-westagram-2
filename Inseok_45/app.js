@@ -46,16 +46,24 @@ app.get('/users/post/view', async (req, res) => {
     res.status(200).json({ data: viewPost });
 });
 
-app.get('/users/post/view/', async (req, res) => {
+app.get('/users/post/view/:userId', async (req, res, next) => {
+
+    var userId = req.params.userId;
+
     const [userPost] = await dataSource.query(
         `SELECT
           users.id AS userId,
-          (SELECT JSON_ARRAYAGG(JSON_OBJECT("postingId", posts.id,
-          "postImageUrl", posts.post_image,
-          "postContent", posts.post_paragraph))
-        FROM posts
-        WHERE posts.user_id = users.id) AS postings
-        FROM users`
+          (SELECT JSON_ARRAYAGG(
+            JSON_OBJECT(
+                "postingId", posts.id,
+                "postImageUrl", posts.post_image,
+                "postContent", posts.post_paragraph))
+        FROM posts 
+        WHERE posts.user_id = users.id && users.id = ${userId}
+          ) AS postings
+        FROM users
+        WHERE users.id = ${userId}
+        `
     );
 
     return res.status(200).json({ data: userPost }); 
