@@ -32,6 +32,8 @@ app.use(morgan('dev'));
 app.post('/users/signup', async (req, res) => {
     const { firstName, lastName, email, phoneNumber, age, userName, password } = req.body
 
+//제한 설정
+
     await dataSource.query(
         `INSERT INTO users(
             first_name,
@@ -41,7 +43,7 @@ app.post('/users/signup', async (req, res) => {
             age,
             user_name,
             password
-        ) VALUES ( ?, ?, ?, ?, ?, ?, ?)`, [firstName, lastName, email, phoneNumber, age, userName, password]
+        ) VALUES ( ?, ?, ?, ?, ?, ?, ?)`, [ firstName, lastName, email, phoneNumber, age, userName, password ]
     );
 
     return res.status(201).json({ message: "sign-up complete" });
@@ -55,7 +57,7 @@ app.post('/users/post', async (req, res) => {
             user_id,
             post_image,
             post_paragraph
-        ) VALUES ( ?, ?, ?)`, [userId, postImage, postParagraph]
+        ) VALUES ( ?, ?, ?)`, [ userId, postImage, postParagraph ]
     );
 
     return res.status(201).json({ message: "post created!" });
@@ -68,7 +70,7 @@ app.get('/users/post/view', async (req, res) => {
           posts.id as postingId,
           posts.post_image as postingImageUrl,
           posts.post_paragraph as postingContent
-        FROM users
+        FROM users                                      
         INNER JOIN posts ON posts.user_id = users.id`
     );
 
@@ -79,7 +81,7 @@ app.get('/users/:userId/post/view', async (req, res, next) => {
 
     var userId = req.params.userId;
 
-    const [userPost] = await dataSource.query(
+    const [ userPost ] = await dataSource.query(
         `SELECT
           users.id AS userId,
           (SELECT 
@@ -94,16 +96,100 @@ app.get('/users/:userId/post/view', async (req, res, next) => {
           ) AS postings
         FROM users
         WHERE users.id = ?
-        `, [userId, userId]
+        `, [ userId, userId ]
     );
 
     return res.status(200).json({ data: userPost }); 
 });
 
+app.patch('/edit/users/:userId/posts/:postId/what/:postContent', async (req, res, next) => {
+    
+    var userId = req.params.userId;
+    var postId = req.params.postId;
+    var postContent = req.params.postContent;
+
+    await dataSource.query(
+        `UPDATE
+          posts
+        SET post_paragraph = ${ postContent }
+        WHERE posts.user_id = ? && posts.id = ?
+        `, [ userId, postId ]
+    );
+
+    const [editPost] = await dataSource.query(
+        `SELECT
+          posts.user_id AS userId,
+          users.user_name,
+          posts.id AS postingId,
+          posts.post_image AS postImage,
+          posts.post_paragraph AS postContent
+        FROM
+          posts
+        INNER JOIN users
+        WHERE posts.user_id = ? && posts.id = ?
+        `, [ userId, postId ]
+    );
+
+    return res.status(200).json({ data : "Post Update Successful" });
+});
 
 
 
+app.put('/users/posts/:postId/like', async (req, res, next) => {
 
+    const { userId } = req.body;
+    const postId = req.params.postId;
+    
+    const newLike = await dataSource.query(
+        `SELECT
+        EXISTS
+        (SELECT * FROM likes
+        WHERE user_id = ? AND post_id = ?)
+        `, [ userId, postId ]
+    );
+
+    var rArr = Object.values(newLike[0]);
+    let checkExist = Number(rArr[0]);
+
+    //없을때: checkExist = 0
+    
+    if(checkExist === 0) {
+        await dataSource.query(
+            `INSERT INTO likes(
+                user_id,
+                post_id
+            ) VALUE ( ?, ?)
+            `, [ userId, postId ]
+        );
+        return res.status(201).json({ message : " Like Successful" });
+
+    }
+        await dataSource.query(
+            `DELETE FROM
+            likes
+            WHERE
+            user_id = ? AND post_id = ?
+            `, [ userId, postId ]
+        );
+        return res.status(200).json({ message : " Unlike Successful" });
+
+});
+
+app.delete('/users/:userId/posts/:postId/del', async (req, res, next) => {
+    
+    var userId = req.params.userId;
+    var postId = req.params.postId;
+
+    await dataSource.query(
+        `DELETE FROM
+        posts
+        WHERE 
+        posts.user_id = ? && posts.id = ?
+        `, [userId, postId]
+    );
+
+    return res.status(200).json({ message : "Post Deletion Successful" });
+});
 
 const port = process.env.PORT;
 const start = async () => {
