@@ -53,10 +53,9 @@ app.post('/users/sign-up', async (req, res, next) => {
 })
 
 
-app.post('/posts/register', async (req, res, next) => {
-    const { userId, title, content, imageUrl } = req.body
-
-    await dataSource.query(
+app.post('/posts', async (req, res, next) => {
+  const { userId, title, content, imageUrl } = req.body
+      await dataSource.query(
         `INSERT INTO posts (
             user_id,
             title,
@@ -68,13 +67,13 @@ app.post('/posts/register', async (req, res, next) => {
             ?,
             ?
         )`, [userId, title, content, imageUrl]
-    );
-
-    res.status(201).json({message : "postCreated"});
+      );
+  
+      res.status(201).json({message : "postCreated"});
 })
 
 
-app.get('/posts-view-all', async (req, res, next) => {
+app.get('/posts', async (req, res, next) => {
     const posts = await dataSource.query(
         `SELECT
             posts.user_id as userId,
@@ -91,9 +90,9 @@ app.get('/posts-view-all', async (req, res, next) => {
 )
 
 
-app.get('/one-user-posts-view/user/:userId', async (req, res, next) => {
+app.get('/userId/:userId/posts', async (req, res, next) => {
     
-    const userId = req.params.userId;
+    const {userId} = req.params;
 
     const posts = await dataSource.query(
         `SELECT
@@ -110,14 +109,88 @@ app.get('/one-user-posts-view/user/:userId', async (req, res, next) => {
                 )
                 FROM posts
                 JOIN users ON users.id = posts.user_id
-                WHERE users.id = ${userId}
+                WHERE users.id = ?
             ) as postings         
             FROM users
-            WHERE users.id = ${userId};`
-        ) 
+            WHERE users.id = ?;`, [userId, userId]
+        )
         res.status(200).json({message : "postGetSuccess", userId, data: posts});
     }
 )
+
+
+app.patch('/postId/:postId', async (req, res, next) => {
+  const {postId} = req.params;
+  const {content, userId} = req.body;
+
+  const updatePost = await dataSource.query(
+    `UPDATE posts
+      SET content = ?
+      WHERE posts.id = ? AND posts.user_id = ?;
+  `, [content, postId, userId]
+);
+
+  if (!updatePost.affectedRows) return res.status(400).json({ message : "Failed, ease check the data!"})
+ 
+  const posts = await dataSource.query(
+    `
+    SELECT
+      users.id as userId, 
+      users.name as userName,
+      posts.id as postingId,
+      posts.title as postingTitle,
+      posts.content as postingContent
+    FROM posts
+    JOIN users ON users.id = posts.user_id
+    WHERE posts.id = ? AND posts.user_id = ?
+    ;
+    `, [postId, userId]
+  );
+  res.status(200).json({ message : "successfully updated", data: posts});
+  }
+)
+
+
+app.delete('/postId/:postId', async (req, res, next) => {
+  const {postId} = req.params;
+  const {userId} = req.body;
+
+  const deletePost  = await dataSource.query(
+    `DELETE
+     FROM posts
+     WHERE posts.id = ? AND posts.user_id = ?;
+    `, [postId, userId]
+    );
+
+    if (!deletePost.affectedRows) return res.status(400).json({ message : "Failed, ease check the data!"})
+
+    res.status(200).json({ message : "postingDeleted" });
+  }
+  
+)
+
+
+app.post('/likes', async (req, res, next) => {
+    const { userId, postId } = req.body;
+    try{
+      await dataSource.query(
+        `INSERT INTO likes(
+            user_id,
+            post_id
+        ) VALUES (
+            ?,
+            ?
+        )`, [userId, postId]
+    );
+
+    res.status(201).json({message : "likeCreated"});
+    }
+    catch(err){
+      console.log("duplicateData: ", err)
+      res.status(400).json({message : "duplicateData"});
+    }
+    
+})
 
 const PORT = process.env.PORT;
 
