@@ -1,29 +1,28 @@
-
 const express = require("express");
 const cors = require("cors");
 const morgan = require("morgan");
 const dotenv = require("dotenv");
+const { DataSource } = require("typeorm");
 
 dotenv.config();
-
-const { DataSource } = require("typeorm");
 
 const dataSource = new DataSource({
   type: process.env.DB_CONNECTION,
   host: process.env.DB_HOST,
+  port: process.env.DB_PORT,
   username: process.env.DB_USERNAME,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_DATABASE,
-  port: process.env.DB_PORT,
 });
 
-dataSource.initialize().then(() => {
-  console.log("Data source has been initialized");
-})
-.catch((error)==>console.log(error));
+dataSource
+  .initialize()
+  .then(() => {
+    console.log("Data Source has been initialized");
+  })
+  .catch((error) => console.log(error));
 
 const app = express();
-const PORT = process.env.PORT;
 
 app.use(express.json());
 app.use(cors());
@@ -34,9 +33,9 @@ app.get("/ping", (req, res) => {
 });
 
 app.post("/users", async (req, res, next) => {
-  const { email, password, description, profie_img } = req.body;
+  const { email, password, description, profile_img } = req.body;
 
-  await myDataSource.query(
+  await dataSource.query(
     `INSERT INTO users(
       email,
       password,
@@ -44,14 +43,16 @@ app.post("/users", async (req, res, next) => {
       profie_img
     ) VALUES (? , ? , ?, ?);
     `,
-    [email, password, description, profie_img]
+    [email, password, description, profile_img]
   );
 
   res.status(201).json({ mesasage: " userCreated " });
 });
 
+const PORT = process.env.PORT;
+
 const start = async () => {
-  app.listen(PORT, () => console.log(`sever is listening on ${PORT}`));
+  app.listen(PORT, () => console.log(`server is listening on ${PORT}`));
 };
 
 start();
