@@ -64,6 +64,45 @@ app.post("/posts", async (req, res, next) => {
   res.status(201).json({ message: " postsCreated " });
 });
 
+app.get("/posts", async (req, res) => {
+  await dataSource.query(
+    `SELECT
+       posts.id,
+       posts.user_id ,
+       posts.title,
+       posts.description,
+       posts.image,
+       posts.created_at ,
+       posts.updated_at 
+       FROM posts`,
+    (err, rows) => {
+      res.status(200).json(rows);
+    }
+  );
+});
+
+app.get("/users/:post", async (req, res) => {
+  const posts = await dataSource.query(
+    `SELECT
+      users.id as users_id,
+      users.email as users_email,
+      users.profile_image as users_profileImage,
+       JSON_ARRAYAGG(
+        JSON_OBJECT(
+          "post_users_id" , posts.user_id,
+          "post_title" , posts.title,
+          "post_description" , posts.description,
+          "post_image", posts.image
+        )
+       ) as posting
+      FROM users
+      JOIN posts ON users.id = posts.user_id 
+      GROUP BY users_id`
+  );
+
+  res.status(200).json({ data: posts });
+});
+
 const PORT = process.env.PORT;
 
 const start = async () => {
