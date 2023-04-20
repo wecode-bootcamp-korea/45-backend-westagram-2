@@ -1,14 +1,10 @@
-//3rd party 패키지
-
-require.('dotenv').config();
+require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const morgan = require("morgan");
 const { DataSource } = require("typeorm");
 
-//custom패키지
 const app = express();
-
 
 const dataSource = new DataSource({
   type: process.env.DB_CONNECTION,
@@ -19,16 +15,12 @@ const dataSource = new DataSource({
   database: process.env.DB_DATABASE,
 });
 
-
-
 dataSource
   .initialize()
   .then(() => {
     console.log("Data Source has been initialized");
   })
   .catch((error) => console.log(error));
-
-
 
 app.use(express.json());
 app.use(cors());
@@ -53,6 +45,23 @@ app.post("/users", async (req, res, next) => {
   );
 
   res.status(201).json({ mesasage: " userCreated " });
+});
+
+app.post("/posts", async (req, res, next) => {
+  const { title, description, image, user_id } = req.body;
+
+  await dataSource.query(
+    `INSERT INTO posts(
+      title,
+      description,
+      image,
+      user_id
+    ) VALUES ( ? , ? , ? , ?);
+    `,
+    [title, description, image, user_id]
+  );
+
+  res.status(201).json({ message: " postsCreated " });
 });
 
 const PORT = process.env.PORT;
