@@ -46,8 +46,9 @@ app.get('/posts/all', async function (req, res){
           });
 });
 
-app.get('/users/posts/all', async function (req, res){
-    await dataSource.query(
+app.get('/users/:userId/posts', async function (req, res){
+    const {userId} = req.params;
+    const [result] = await dataSource.query(
         `SELECT
             u.id as user_id,
             JSON_ARRAYAGG(
@@ -55,14 +56,15 @@ app.get('/users/posts/all', async function (req, res){
                     "post_id", p.id,
                     "post_image", p.post_image,
                     "post_content", p.post_content
-                )
+              )
             ) as posts
         FROM users u 
         JOIN posts p ON p.user_id = u.id
-        GROUP BY u.id`
-                , function (err, rows) {
-        res.status(200).json(rows);
-          });
+        WHERE u.id = ?
+        GROUP BY u.id`, [userId]
+    );
+
+    return res.status(200).json({data : result})
 });
 
 app.post('/users/signup', async function (req, res) {
@@ -104,6 +106,7 @@ app.post('/users/posts', async function (req, res) {
 
     res.status(201).json({message: 'postCreated'})
 });
+
 
 const PORT = process.env.PORT;
 
