@@ -123,14 +123,15 @@ app.patch('/postId/:postId', async (req, res, next) => {
   const {postId} = req.params;
   const {content, userId} = req.body;
 
-  
-  await dataSource.query(
+  const updatePost = await dataSource.query(
     `UPDATE posts
-        SET content = ?
-        WHERE posts.id = ? AND posts.user_id = ?;
-    `, [content, postId, userId]
-  );
-  console.log(`==================${dataSource.query}===============\n`)
+      SET content = ?
+      WHERE posts.id = ? AND posts.user_id = ?;
+  `, [content, postId, userId]
+);
+
+  if (!updatePost.affectedRows) return res.status(400).json({ message : "Failed, please check the data!"})
+ 
   const posts = await dataSource.query(
     `
     SELECT
@@ -146,12 +147,6 @@ app.patch('/postId/:postId', async (req, res, next) => {
     `, [postId, userId]
   );
   res.status(200).json({ message : "successfully updated", data: posts});
-  // }
-
-  // catch(err){
-  //   res.status(400).json({ message : "Please check the data!", err});
-  // }
-
   }
 )
 
