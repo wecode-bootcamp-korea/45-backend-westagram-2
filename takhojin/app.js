@@ -48,24 +48,24 @@ app.post("/users", async (req, res, next) => {
 });
 
 app.post("/posts", async (req, res, next) => {
-  const { title, description, image, user_id } = req.body;
+  const { title, description, image, userId } = req.body;
 
   await dataSource.query(
     `INSERT INTO posts(
       title,
       description,
       image,
-      user_id
+      userId
     ) VALUES ( ? , ? , ? , ?);
     `,
-    [title, description, image, user_id]
+    [title, description, image, userId]
   );
 
   res.status(201).json({ message: " postsCreated " });
 });
 
 app.get("/posts", async (req, res) => {
-  await dataSource.query(
+  const posts = await dataSource.query(
     `SELECT
        posts.id,
        posts.user_id ,
@@ -74,30 +74,30 @@ app.get("/posts", async (req, res) => {
        posts.image,
        posts.created_at ,
        posts.updated_at 
-       FROM posts`,
-    (err, rows) => {
-      res.status(200).json(rows);
-    }
+       FROM posts`
   );
+
+  res.status(200).json({ data: posts });
 });
 
-app.get("/users/:post", async (req, res) => {
+app.get("/userPost/:users", async (req, res) => {
   const posts = await dataSource.query(
     `SELECT
-      users.id as users_id,
-      users.email as users_email,
-      users.profile_image as users_profileImage,
+      users.id as usersId,
+      users.email as usersEmail,
+      users.profile_image as usersProfileImage,
        JSON_ARRAYAGG(
         JSON_OBJECT(
-          "post_users_id" , posts.user_id,
-          "post_title" , posts.title,
-          "post_description" , posts.description,
-          "post_image", posts.image
+          "postUsersId" , posts.user_id,
+          "postTitle" , posts.title,
+          "postDescription" , posts.description,
+          "postImage", posts.image,
+          "postId", posts.id
         )
        ) as posting
-      FROM users
+      FROM users 
       JOIN posts ON users.id = posts.user_id 
-      GROUP BY users_id`
+      GROUP BY users.id`
   );
 
   res.status(200).json({ data: posts });
