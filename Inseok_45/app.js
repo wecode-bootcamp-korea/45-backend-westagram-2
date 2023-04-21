@@ -30,9 +30,10 @@ app.use(morgan('dev'));
 
 
 app.post('/users/signup', async (req, res) => {
+
     const { firstName, lastName, email, phoneNumber, age, userName, password } = req.body
 
-    if ( !firstName || !lastName || !email || !phoneNumber || !age || !userName || !password){
+    if ( !firstName || !lastName || !email || !phoneNumber || !age || !userName || !password) {
         res.status(400).json({ message: "Cannot Sign Up" })
     }
 
@@ -52,7 +53,8 @@ app.post('/users/signup', async (req, res) => {
 });
 
 app.post('/users/post', async (req, res) => {
-    const { userId, postImage, postParagraph} = req.body
+
+    const { userId, postImage, postParagraph } = req.body
 
     await dataSource.query(
         `INSERT INTO posts(
@@ -66,6 +68,7 @@ app.post('/users/post', async (req, res) => {
 });
 
 app.get('/users/post/view', async (req, res) => {
+
     const viewPost = await dataSource.query(
         `SELECT
           users.id as userId,
@@ -81,7 +84,7 @@ app.get('/users/post/view', async (req, res) => {
 
 app.get('/users/:userId/post/view', async (req, res, next) => {
 
-    var userId = req.params.userId;
+    const userId = req.params.userId;
 
     const [ userPost ] = await dataSource.query(
         `SELECT
@@ -104,12 +107,10 @@ app.get('/users/:userId/post/view', async (req, res, next) => {
     return res.status(200).json({ data: userPost }); 
 });
 
-app.patch('/edit/users/:userId/posts/:postId/what/:postContent', async (req, res, next) => {
-    
-    var userId = req.params.userId;
-    var postId = req.params.postId;
-    var postContent = req.params.postContent;
+app.patch('/post', async (req, res, next) => {
 
+    const { userId, postId, postContent } = req.body;
+    
     await dataSource.query(
         `UPDATE
           posts
@@ -132,26 +133,26 @@ app.patch('/edit/users/:userId/posts/:postId/what/:postContent', async (req, res
         `, [ userId, postId ]
     );
 
-    return res.status(200).json({ data : "Post Update Successful" });
+    return res.status(201).json({ data : "Post Update Successful" });
 });
 
 
 
-app.put('/users/posts/:postId/like', async (req, res, next) => {
+app.put('/like', async (req, res, next) => {    
 
-    const { userId } = req.body;
-    const postId = req.params.postId;
+    const { userId, postId } = req.body;
     
     const newLike = await dataSource.query(
         `SELECT
         EXISTS
-        (SELECT * FROM likes
+        (SELECT * 
+        FROM likes
         WHERE user_id = ? AND post_id = ?)
         `, [ userId, postId ]
     );
-
-    var rArr = Object.values(newLike[0]);
-    let checkExist = Number(rArr[0]);
+    console.log(newLike);
+    const rArr = Object.values(newLike[0]);
+    const checkExist = Number(rArr[0]);
     
     if(checkExist === 0) {
         await dataSource.query(
@@ -175,18 +176,16 @@ app.put('/users/posts/:postId/like', async (req, res, next) => {
 
 });
 
-app.delete('/users/:userId/posts/:postId/del', async (req, res, next) => {
+app.delete('/users/posts/del', async (req, res, next) => {      
     
-    var userId = req.params.userId;
-    var postId = req.params.postId;
+    const { userId, postId } = req.body;
 
     await dataSource.query(
-        `DELETE FROM
-        posts
-        WHERE 
-        posts.user_id = ? && posts.id = ?
+        `DELETE 
+        FROM posts
+        WHERE posts.user_id = ? AND posts.id = ?    
         `, [userId, postId]
-    );
+    );   
 
     return res.status(200).json({ message : "Post Deletion Successful" });
 });
