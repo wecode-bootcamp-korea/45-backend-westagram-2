@@ -1,14 +1,10 @@
-//3rd party 패키지
-
-require.('dotenv').config();
+require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const morgan = require("morgan");
 const { DataSource } = require("typeorm");
 
-//custom패키지
 const app = express();
-
 
 const dataSource = new DataSource({
   type: process.env.DB_CONNECTION,
@@ -19,16 +15,12 @@ const dataSource = new DataSource({
   database: process.env.DB_DATABASE,
 });
 
-
-
 dataSource
   .initialize()
   .then(() => {
     console.log("Data Source has been initialized");
   })
   .catch((error) => console.log(error));
-
-
 
 app.use(express.json());
 app.use(cors());
@@ -53,6 +45,66 @@ app.post("/users", async (req, res, next) => {
   );
 
   res.status(201).json({ mesasage: " userCreated " });
+});
+
+app.post("/posts", async (req, res, next) => {
+  const { title, description, image, userId } = req.body;
+
+  await dataSource.query(
+    `INSERT INTO posts(
+      title,
+      description,
+      image,
+      userId
+    ) VALUES ( ? , ? , ? , ?);
+    `,
+    [title, description, image, userId]
+  );
+
+  res.status(201).json({ message: " postsCreated " });
+});
+
+app.get("/posts", async (req, res) => {
+  const posts = await dataSource.query(
+    `SELECT
+       posts.id,
+       posts.user_id ,
+       posts.title,
+       posts.description,
+       posts.image,
+       posts.created_at ,
+       posts.updated_at 
+       FROM posts`
+  );
+
+  res.status(200).json({ data: posts });
+});
+
+app.get("/userPost/:userId", async (req, res) => {
+  const { userId } = req.params;
+
+  const posts = await dataSource.query(
+    `SELECT
+      users.id as usersId,
+      users.email as usersEmail,
+      users.profile_image as usersProfileImage,
+       JSON_ARRAYAGG(
+        JSON_OBJECT(
+          "postUsersId" , posts.user_id,
+          "postTitle" , posts.title,
+          "postDescription" , posts.description,
+          "postImage", posts.image,
+          "postId", posts.id
+        )
+       ) as posting
+      FROM users 
+      JOIN posts ON users.id = posts.user_id 
+      WHERE users.id = ?
+      GROUP BY users.id `,
+    [userId]
+  );
+
+  res.status(200).json({ data: posts });
 });
 
 const PORT = process.env.PORT;
