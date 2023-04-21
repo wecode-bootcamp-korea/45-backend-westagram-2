@@ -25,13 +25,16 @@ dataSource.initialize()
 
 const app = express(); 
 
-app.use(express.json());
 app.use(cors());
+app.use(express.json());
 app.use(morgan('dev'));
 
 
 app.post('/users/sign-up', async (req, res, next) => {
     const { name, profileImage, email, password, phoneNumber } = req.body
+
+    if (!name || !profileImage || !email || !password || !phoneNumber)
+      return res.status(400).json({message : "KEY ERROR"});
 
     await dataSource.query(
         `INSERT INTO users (
@@ -90,7 +93,7 @@ app.get('/posts', async (req, res, next) => {
 )
 
 
-app.get('/userId/:userId/posts', async (req, res, next) => {
+app.get('/users/:userId/posts', async (req, res, next) => {
     
     const {userId} = req.params;
 
@@ -119,7 +122,7 @@ app.get('/userId/:userId/posts', async (req, res, next) => {
 )
 
 
-app.patch('/postId/:postId', async (req, res, next) => {
+app.patch('/posts/:postId', async (req, res, next) => {
   const {postId} = req.params;
   const {content, userId} = req.body;
 
@@ -151,7 +154,7 @@ app.patch('/postId/:postId', async (req, res, next) => {
 )
 
 
-app.delete('/postId/:postId', async (req, res, next) => {
+app.delete('/post/:postId', async (req, res, next) => {
   const {postId} = req.params;
   const {userId} = req.body;
 
