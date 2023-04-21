@@ -99,11 +99,37 @@ app.get("/userPost/:userId", async (req, res) => {
        ) as posting
       FROM users 
       JOIN posts ON users.id = posts.user_id 
-      WHERE users.id = ?
+      WHERE users.id = ? 
       GROUP BY users.id `,
     [userId]
   );
 
+  res.status(200).json({ data: posts });
+});
+
+app.patch("/userCorrection/:userId/:postId", async (req, res) => {
+  const { description } = req.body;
+  await dataSource.query(
+    `UPDATE posts
+      SET
+       description = ?`,
+    [description]
+  );
+  const { userId, postId } = req.params;
+
+  const [posts] = await dataSource.query(
+    `SELECT 
+      JSON_OBJECT(
+        "userId" , users.id ,
+        "postUserId" , posts.user_id ,
+        "postTitle" , posts.title ,
+        "postDesc" , posts.description 
+      ) AS posts
+      FROM users
+      JOIN posts ON users.id = posts.user_id
+      WHERE users.id = ? and posts.id = ?`,
+    [userId, postId]
+  );
   res.status(200).json({ data: posts });
 });
 
