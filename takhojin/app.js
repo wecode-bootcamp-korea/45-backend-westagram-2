@@ -80,7 +80,9 @@ app.get("/posts", async (req, res) => {
   res.status(200).json({ data: posts });
 });
 
-app.get("/userPost/:users", async (req, res) => {
+app.get("/userPost/:userId", async (req, res) => {
+  const { userId } = req.params;
+
   const posts = await dataSource.query(
     `SELECT
       users.id as usersId,
@@ -97,7 +99,9 @@ app.get("/userPost/:users", async (req, res) => {
        ) as posting
       FROM users 
       JOIN posts ON users.id = posts.user_id 
-      GROUP BY users.id`
+      WHERE users.id = ?
+      GROUP BY users.id `,
+    [userId]
   );
 
   res.status(200).json({ data: posts });
