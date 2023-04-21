@@ -1,76 +1,47 @@
-require('dotenv').config();
+require("dotenv").config();
 
-const morgan = require ('morgan');
-const express = require('express');
-const cors = require('cors');
-const { DataSource } = require('typeorm');
+const morgan = require("morgan");
+const express = require("express");
+const cors = require("cors");
+const { DataSource } = require("typeorm");
 
 const dataSource = new DataSource({
-    type: process.env.DB_CONNECTION,
-    host: process.env.DB_HOST,
-    port: process.env.DB_PORT,
-    username: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_DATABASE
-})
+  type: process.env.DB_CONNECTION,
+  host: process.env.DB_HOST,
+  port: process.env.DB_PORT,
+  username: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_DATABASE,
+});
 
-dataSource.initialize()
-    .then(() => {
-        console.log("Data Source has been initialized!")
-    })
-    .catch((err) => {
-        console.log("Error during Data Source initialization", err)
-    })
+dataSource
+  .initialize()
+  .then(() => {
+    console.log("Data Source has been initialized!");
+  })
+  .catch((err) => {
+    console.log("Error during Data Source initialization", err);
+  });
 
 const app = express();
 
 app.use(express.json());
 app.use(cors());
-app.use(morgan('dev'));
+app.use(morgan("dev"));
 
-app.get('/ping', function (req, res){
-    return res.status(200).json({message: 'pong'})
+app.get("/ping", function (req, res) {
+  return res.status(200).json({ message: "pong" });
 });
 
-app.get('/posts/all', async function (req, res){
-    await dataSource.query(
-        `SELECT
-            u.id as user_id,
-            p.id as post_id,
-            p.post_image,
-            p.post_content
-        FROM users u 
-        INNER JOIN posts p ON p.user_id = u.id`
-                , function (err, rows) {
-        res.status(200).json(rows);
-          });
-});
+app.post("/users/signup", async function (req, res) {
+  const { email, password, name, age, phoneNumber } = req.body;
 
-app.get('/users/:userId/posts', async function (req, res){
-    const {userId} = req.params;
-    const [result] = await dataSource.query(
-        `SELECT
-            u.id as user_id,
-            JSON_ARRAYAGG(
-                JSON_OBJECT(
-                    "post_id", p.id,
-                    "post_image", p.post_image,
-                    "post_content", p.post_content
-              )
-            ) as posts
-        FROM users u 
-        JOIN posts p ON p.user_id = u.id
-        WHERE u.id = ?
-        GROUP BY u.id`, [userId]
-    );
+  if (!email || !password || !name) {
+    return res.status(400).json({ message: "KEY_ERROR" });
+  }
 
-    return res.status(200).json({data : result})
-});
-
-app.post('/users/signup', async function (req, res) {
-    const { email, password, name, age, phoneNumber } = req.body
-
-    await dataSource.query(`
+  await dataSource.query(
+    `
         INSERT INTO users (
             email,
             password,
@@ -84,15 +55,19 @@ app.post('/users/signup', async function (req, res) {
             ?,
             ?
         )
-    `,[email, password, name, age, phoneNumber])
+    `,
+    [email, password, name, age, phoneNumber]
+  );
 
-    res.status(201).json({message: 'userCreated'})
+  res.status(201).json({ message: "userCreated" });
 });
 
-app.post('/users/posts', async function (req, res) {
-    const { userId, postContent, postImage } = req.body
+app.post("/users/:userId/posting", async function (req, res) {
+  const { postContent, postImage } = req.body;
+  const { userId } = req.params;
 
-    await dataSource.query(`
+  await dataSource.query(
+    `
         INSERT INTO posts (
             user_id,
             post_content,
@@ -102,16 +77,142 @@ app.post('/users/posts', async function (req, res) {
             ?,
             ?
         )
-    `,[ userId, postContent, postImage ])
+    `,
+    [userId, postContent, postImage]
+  );
 
-    res.status(201).json({message: 'postCreated'})
+  res.status(201).json({ message: "postCreated" });
 });
 
+app.post("/users/:userId/likes/:postId", async function (req, res) {
+  const { userId, postId } = req.params;
+
+  const isExists = await dataSource.query(
+    `
+            SELECT EXISTS (
+                SELECT * FROM likes 
+                WHERE (
+                  user_id = ? AND post_id = ?
+                )
+            )
+    `,
+    [userId, postId]
+  );
+
+  if (Object.values(isExists[0]) == 1) {
+    await dataSource.query(
+      `
+            DELETE FROM likes
+            WHERE user_id = ? AND post_id = ?
+      `,
+      [userId, postId]
+    );
+
+    res.status(201).json({ message: "likeCanceled" });
+  } else {
+    await dataSource.query(
+      `
+            INSERT INTO likes (
+                user_id,
+                post_id
+            ) VALUES (
+                ?,
+                ?
+            )
+      `,
+      [userId, postId]
+    );
+
+    res.status(201).json({ message: "likeCreated" });
+  }
+});
+
+app.get("/posts/viewall", async function (req, res) {
+  const result = await dataSource.query(
+    `SELECT
+            u.id AS user_id,
+            p.id AS post_id,
+            p.post_image,
+            p.post_content
+        FROM posts p 
+        INNER JOIN users u ON p.user_id = u.id`
+  );
+
+  res.status(200).json({ data: result });
+});
+
+app.get("/users/:userId/posts", async function (req, res) {
+  const { userId } = req.params;
+
+  const [showPosts] = await dataSource.query(
+    `SELECT
+            u.id as user_id,
+            JSON_ARRAYAGG(
+                JSON_OBJECT(
+                    "post_id", p.id,
+                    "post_image", p.post_image,
+                    "post_content", p.post_content
+              )
+            ) as posts
+        FROM users u 
+        JOIN posts p ON p.user_id = u.id
+        WHERE u.id = ?
+        GROUP BY u.id`,
+    [userId]
+  );
+
+  res.status(200).json({ data: showPosts });
+});
+
+app.put("/users/:userId/posts/:postId/update", async function (req, res) {
+  const { userId, postId } = req.params;
+  const { postImage, postContent } = req.body;
+
+  await dataSource.query(
+    `UPDATE users u INNER JOIN posts p
+         ON u.id = p.user_id
+            SET
+                post_image = ?,
+                post_content = ?
+            WHERE u.id = ? AND p.id = ?
+        `,
+    [postImage, postContent, userId, postId]
+  );
+
+  const [result] = await dataSource.query(
+    `SELECT
+            u.id as userId,
+            u.name as userName,
+            p.id as postingId,
+            p.post_image as postingImage,
+            p.post_content as postingContent
+        FROM users AS u 
+        JOIN posts p ON p.user_id = u.id
+        WHERE u.id = ? AND p.id = ?
+        `,
+    [userId, postId]
+  );
+
+  res.status(201).json({ data: result });
+});
+
+app.delete("/users/:userId/posts/:postId", async function (req, res) {
+  const { userId, postId } = req.params;
+
+  await dataSource.query(
+    `DELETE FROM posts p 
+            WHERE p.user_id = ? AND p.id = ?
+        `,
+    [userId, postId]
+  );
+
+  res.status(201).json({ message: "postingDeleted" });
+});
 
 const PORT = process.env.PORT;
 
 const start = async () => {
-    app.listen(PORT, () => console.log(`server is listening on ${PORT}`));
+  app.listen(PORT, () => console.log(`server is listening on ${PORT}`));
 };
 
-start()
+start();
