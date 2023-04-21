@@ -80,7 +80,7 @@ app.get("/posts", async (req, res) => {
   res.status(200).json({ data: posts });
 });
 
-app.get("/userPost/:userId", async (req, res) => {
+app.get("/user/:userId", async (req, res) => {
   const { userId } = req.params;
 
   const posts = await dataSource.query(
@@ -107,7 +107,7 @@ app.get("/userPost/:userId", async (req, res) => {
   res.status(200).json({ data: posts });
 });
 
-app.patch("/userCorrection/:userId/:postId", async (req, res) => {
+app.patch("/user/:userId/posts/:postId", async (req, res) => {
   const { description } = req.body;
   await dataSource.query(
     `UPDATE posts
@@ -131,6 +131,17 @@ app.patch("/userCorrection/:userId/:postId", async (req, res) => {
     [userId, postId]
   );
   res.status(200).json({ data: posts });
+});
+
+app.delete("/posts/:postId", async (req, res) => {
+  const { postId } = req.params;
+
+  await dataSource.query(
+    `DELETE FROM posts
+      WHERE posts.id = ?`,
+    [postId]
+  );
+  res.status(204).send();
 });
 
 const PORT = process.env.PORT;
