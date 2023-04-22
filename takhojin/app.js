@@ -144,21 +144,18 @@ app.delete("/posts/:postId", async (req, res) => {
   res.status(204).send();
 });
 
-app.post("/users/:user/posts/:post", async (req, res) => {
-  const { user_id, post_id } = req.body;
+app.post("/users/:userId/posts/:postId", async (req, res) => {
+  const { userId, postId } = req.params;
 
   await dataSource.query(
-    `INSERT INTO likes(
+    `INSERT IGNORE INTO likes(
       users_id ,
       posts_id 
-      ) VALUES ( ? , ?)
-      WHERE NOT EXISTS
-      (SELECT likes.id
-        FROM likes
-        WHERE user_id = ? AND
-              post_id = ?)`,
-    [user_id, post_id, user_id, post_id]
+    ) VALUES ( ? , ?)
+    `,
+    [userId, postId]
   );
+
   res.status(200).json({ message: "like" });
 });
 
