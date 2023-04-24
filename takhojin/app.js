@@ -80,7 +80,7 @@ app.get("/posts", async (req, res) => {
   res.status(200).json({ data: posts });
 });
 
-app.get("/userPost/:userId", async (req, res) => {
+app.get("/user/:userId", async (req, res) => {
   const { userId } = req.params;
 
   const posts = await dataSource.query(
@@ -99,12 +99,64 @@ app.get("/userPost/:userId", async (req, res) => {
        ) as posting
       FROM users 
       JOIN posts ON users.id = posts.user_id 
-      WHERE users.id = ?
+      WHERE users.id = ? 
       GROUP BY users.id `,
     [userId]
   );
 
   res.status(200).json({ data: posts });
+});
+
+app.patch("/user/:userId/posts/:postId", async (req, res) => {
+  const { description } = req.body;
+  await dataSource.query(
+    `UPDATE posts
+      SET
+       description = ?`,
+    [description]
+  );
+  const { userId, postId } = req.params;
+
+  const [posts] = await dataSource.query(
+    `SELECT 
+      JSON_OBJECT(
+        "userId" , users.id ,
+        "postUserId" , posts.user_id ,
+        "postTitle" , posts.title ,
+        "postDesc" , posts.description 
+      ) AS posts
+      FROM users
+      JOIN posts ON users.id = posts.user_id
+      WHERE users.id = ? and posts.id = ?`,
+    [userId, postId]
+  );
+  res.status(200).json({ data: posts });
+});
+
+app.delete("/posts/:postId", async (req, res) => {
+  const { postId } = req.params;
+
+  await dataSource.query(
+    `DELETE FROM posts
+      WHERE posts.id = ?`,
+    [postId]
+  );
+  res.status(204).send();
+});
+
+app.post("/users/:userId/posts/:postId", async (req, res) => {
+  const { userId, postId } = req.params;
+
+  await dataSource.query(
+    `INSERT IGNORE INTO likes(
+      users_id ,
+      posts_id 
+    ) VALUES ( ? , ?)
+    `,
+    [userId, postId]
+  );
+
+  res.status(200).json({ message: "like" });
 });
 
 const PORT = process.env.PORT;
