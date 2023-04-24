@@ -30,13 +30,12 @@ const isUserExisted = async (userId) => {
     const [result] = await dataSource.query(
       `SELECT EXISTS(
         SELECT
-        user_id
-        FROM posts
-        WHERE user_id = ?
+        id
+        FROM users
+        WHERE id = ?
       ) as existed`,
       [userId]
     );
-
     return !!parseInt(result.existed);
   } catch (err) {
     const error = new Error("INVALID_DATA_INPUT");
