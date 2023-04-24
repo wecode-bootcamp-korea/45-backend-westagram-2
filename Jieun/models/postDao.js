@@ -1,23 +1,4 @@
-const { DataSource } = require("typeorm");
-
-const dataSource = new DataSource({
-  type: process.env.DB_CONNECTION,
-  host: process.env.DB_HOST,
-  port: process.env.DB_PORT,
-  username: process.env.DB_USERNAME,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_DATABASE,
-});
-
-dataSource
-  .initialize()
-  .then(() => {
-    console.log("Data Source has been initialized!");
-  })
-  .catch((err) => {
-    console.log("Error occurred during Data Source initialization", err);
-    dataSource.destroy();
-  });
+const dataSource = require("./dataSource");
 
 const createPosts = async (userId, title, content, imageUrl) => {
   try {
@@ -44,14 +25,14 @@ const createPosts = async (userId, title, content, imageUrl) => {
 
 const getAllPosts = async () => {
   try {
-    return await dataSource.query(
+    return dataSource.query(
       `SELECT
             posts.user_id as userId,
             users.profile_image as userProfileImage,
             posts.id as postingId,
             posts.image_url as postingImageUrl,
             posts.content as postingContent
-        FROM posts    return
+        FROM posts 
 
         INNER JOIN users ON posts.user_id = users.id;`
     );
@@ -64,7 +45,7 @@ const getAllPosts = async () => {
 
 const getSpecificUserPosts = async (userId) => {
   try {
-    return await dataSource.query(
+    return dataSource.query(
       `SELECT
       users.id as userId,
       users.profile_image as userProfileImage,
@@ -86,9 +67,7 @@ const getSpecificUserPosts = async (userId) => {
       [userId, userId]
     );
   } catch (err) {
-    console.lomodifyResultPostsg(err);
     const error = new Error("INVALID_DATA_INPUT");
-
     error.statusCode = 500;
     throw error;
   }
@@ -96,7 +75,7 @@ const getSpecificUserPosts = async (userId) => {
 
 const modifyPosts = async (content, postId, userId) => {
   try {
-    return await dataSource.query(
+    return dataSource.query(
       `UPDATE posts
       SET content = ?
       WHERE posts.id = ? AND posts.user_id = ?;
@@ -104,7 +83,6 @@ const modifyPosts = async (content, postId, userId) => {
       [content, postId, userId]
     );
   } catch (err) {
-    console.lomodifyResultPostsg(err);
     const error = new Error("INVALID_DATA_INPUT");
     error.statusCode = 500;
     throw error;
@@ -113,7 +91,7 @@ const modifyPosts = async (content, postId, userId) => {
 
 const modifyResultPosts = async (postId, userId) => {
   try {
-    return await dataSource.query(
+    return dataSource.query(
       `
       SELECT
         users.id as userId, 
@@ -129,7 +107,6 @@ const modifyResultPosts = async (postId, userId) => {
       [postId, userId]
     );
   } catch (err) {
-    console.lomodifyResultPostsg(err);
     const error = new Error("INVALID_DATA_INPUT");
     error.statusCode = 500;
     throw error;
@@ -146,9 +123,8 @@ const deleteResultPosts = async (postId, userId) => {
       [postId, userId]
     );
     if (!result.affectedRows) return result.affectedRows;
-    else return result;
+    return result;
   } catch (err) {
-    console.lomodifyResultPostsg(err);
     const error = new Error("INVALID_DATA_INPUT");
     error.statusCode = 500;
     throw error;
