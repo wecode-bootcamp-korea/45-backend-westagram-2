@@ -44,6 +44,27 @@ const createUser = async (name, profileImage, email, password, phoneNumber) => {
   }
 };
 
+const isUserExisted = async (userId) => {
+  try {
+    const [result] = await dataSource.query(
+      `SELECT EXISTS(
+        SELECT
+        user_id
+        FROM posts
+        WHERE user_id = ?
+      ) as existed`,
+      [userId]
+    );
+
+    return !!parseInt(result.existed);
+  } catch (err) {
+    const error = new Error("INVALID_DATA_INPUT");
+    error.statusCode = 500;
+    throw error;
+  }
+};
+
 module.exports = {
   createUser,
+  isUserExisted,
 };

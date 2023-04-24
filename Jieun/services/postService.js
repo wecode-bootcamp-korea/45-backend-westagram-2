@@ -1,6 +1,11 @@
 const postDao = require("../models/postDao");
+const userDao = require("../models/userDao");
 
 const createPosts = async (userId, title, content, imageUrl) => {
+  const isUserExisted = await userDao.isUserExisted(userId);
+
+  if (!isUserExisted) throw new Error("User Does Not Exist");
+
   const registration = await postDao.createPosts(
     userId,
     title,

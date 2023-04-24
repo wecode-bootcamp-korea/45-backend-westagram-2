@@ -30,15 +30,8 @@ const createLikes = async (userId, postId) => {
         `,
       [userId, postId]
     );
-    console.log("=======result=======");
-    console.log(result);
-    console.log("=======result.existed=======");
-    console.log(result.existed);
 
     const isExisted = !!parseInt(result.existed);
-    console.log("=======isExitsted=======");
-    console.log(isExisted);
-    console.log("========================");
 
     if (!isExisted) {
       return await dataSource.query(

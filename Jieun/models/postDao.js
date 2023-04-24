@@ -51,7 +51,8 @@ const getAllPosts = async () => {
             posts.id as postingId,
             posts.image_url as postingImageUrl,
             posts.content as postingContent
-        FROM posts
+        FROM posts    return
+
         INNER JOIN users ON posts.user_id = users.id;`
     );
   } catch (err) {
@@ -87,6 +88,7 @@ const getSpecificUserPosts = async (userId) => {
   } catch (err) {
     console.lomodifyResultPostsg(err);
     const error = new Error("INVALID_DATA_INPUT");
+
     error.statusCode = 500;
     throw error;
   }
