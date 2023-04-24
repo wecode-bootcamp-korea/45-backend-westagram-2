@@ -19,19 +19,29 @@ dataSource
 
 const createLikes = async (userId, postId) => {
   try {
-    const likeExists = await dataSource.query(
+    const [result] = await dataSource.query(
       `SELECT EXISTS(
         SELECT
         user_id,
         post_id
         FROM likes
         WHERE user_id = ? AND post_id = ?
-        )
+        ) as existed
         `,
       [userId, postId]
     );
-    if (Object.values(likeExists[0]) == 0) {
-      const createLike = await dataSource.query(
+    console.log("=======result=======");
+    console.log(result);
+    console.log("=======result.existed=======");
+    console.log(result.existed);
+
+    const isExisted = !!parseInt(result.existed);
+    console.log("=======isExitsted=======");
+    console.log(isExisted);
+    console.log("========================");
+
+    if (!isExisted) {
+      return await dataSource.query(
         `INSERT INTO likes(
           user_id,
           post_id
@@ -41,17 +51,14 @@ const createLikes = async (userId, postId) => {
             )`,
         [userId, postId]
       );
-      return createLike;
-    } else {
-      const deleteLike = await dataSource.query(
-        `DELETE
+    }
+    return await dataSource.query(
+      `DELETE
         FROM likes
         WHERE user_id = ? AND post_id = ?;
         `,
-        [userId, postId]
-      );
-      return deleteLike;
-    }
+      [userId, postId]
+    );
   } catch (err) {
     console.log("duplicateData: ", err);
     res.status(400).json({ message: "duplicateData" });
