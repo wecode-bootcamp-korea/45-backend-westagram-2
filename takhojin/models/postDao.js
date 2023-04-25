@@ -1,35 +1,89 @@
-const { DataSource } = require("typeorm");
+const dataSource = require("./dataSource");
 
-const dataSource = new DataSource({
-  type: process.env.DB_CONNECTION,
-  host: process.env.DB_HOST,
-  port: process.env.DB_PORT,
-  username: process.env.DB_USERNAME,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_DATABASE,
-});
-
-dataSource
-  .initialize()
-  .then(() => {
-    console.log("Data Source has been initialized");
-  })
-  .catch((err) => {
-    console.log("Error occurred during Data Source initialization", err);
-    dataSource.destrou();
-  });
-
-const createPost = async (title, description, image, userId) => {
+const createPost = async (title, description, image, user_id) => {
   try {
     return await dataSource.query(
       `INSERT INTO posts(
         title,
         description,
         image,
-        userId
+        user_id
       ) VALUES ( ? , ? , ? , ?);
       `,
-      [title, description, image, userId]
+      [title, description, image, user_id]
+    );
+  } catch (err) {
+    const error = new Error(`INVALID_DATA_INPUT`);
+    error.statusCode = 500;
+    throw error;
+  }
+};
+
+const postAllGet = async () => {
+  try {
+    return await dataSource.query(
+      `SELECT
+          id,
+          user_id ,
+          title,
+          created_at ,
+          updated_at,
+          image
+          FROM posts
+          `
+    );
+  } catch (err) {
+    const error = new Error(`INVALID_DATA_INPUT`);
+    error.statusCode = 500;
+    throw error;
+  }
+};
+
+const updatedPost = async (userId, postId) => {
+  try {
+    return await dataSource.query(
+      `SELECT 
+      JSON_OBJECT(
+        "userId" , users.id ,
+        "postUserId" , posts.user_id ,
+        "postTitle" , posts.title ,
+        "postDesc" , posts.description 
+      ) AS posts
+      FROM users
+      JOIN posts ON users.id = posts.user_id
+      WHERE users.id = ? and posts.id = ?`,
+      [userId, postId]
+    );
+  } catch (err) {
+    const error = new Error(`INVALID_DATA_INPUT`);
+    error.statusCode = 500;
+    throw error;
+  }
+};
+
+const deletePost = async (postId) => {
+  try {
+    await dataSource.query(
+      `DELETE FROM posts
+      WHERE posts.id = ?`,
+      [postId]
+    );
+  } catch (err) {
+    const error = new Error(`INVALID_DATA_INPUT`);
+    error.statusCode = 500;
+    throw error;
+  }
+};
+
+const postLike = async (userId, postId) => {
+  try {
+    await dataSource.query(
+      `INSERT IGNORE INTO likes(
+        users_id ,
+        posts_id 
+      ) VALUES ( ? , ?)
+      `,
+      [userId, postId]
     );
   } catch (err) {
     const error = new Error(`INVALID_DATA_INPUT`);
@@ -40,4 +94,8 @@ const createPost = async (title, description, image, userId) => {
 
 module.exports = {
   createPost,
+  postAllGet,
+  updatedPost,
+  deletePost,
+  postLike,
 };

@@ -4,6 +4,8 @@ const userController = require("../controllers/userController");
 const router = express.Router();
 
 router.post("/signup", userController.signUp);
+router.get("/userSearchPost", userController.searchUserPost);
+router.patch("/user", userController.updateUserPost);
 
 // router.post ( 경로 , 콜백함수)
 // app.post ( 경로 , 함수실행) 과 같은부분
