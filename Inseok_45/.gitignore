@@ -4,7 +4,9 @@
 .env
 node_modules/
 schema.sql
-
+bcrypt.js
+jwt.js
+validation-check.js
 
 ### Linux ###
 *~
