@@ -8,7 +8,7 @@ const signUp = async ( req, res ) => {
             return res.status(400).json({ 
                 message: "Cannot Sign Up" 
             });
-    
+
         await userService.signUp( firstName, lastName, email, phoneNumber, age, userName, password );
         return res.status(201).json({ 
             message: "Sign-Up Complete"

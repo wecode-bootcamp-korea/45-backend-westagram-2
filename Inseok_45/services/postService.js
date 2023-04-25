@@ -1,11 +1,7 @@
- const createPostDao = require('../models/createPostDao');
-const getPostDao = require('../models/getPostDao');
-const getPosts = require('../models/getPostDao');
-const deletePostDao = require('../models/deletePostDao');
-const editPostDao = require('../models/editPostDao')
+const postDao = require('../models/postDao');
 
 const createPosts = async ( userId, postImage, postParagraph ) => {
-    const post = await createPostDao.post(
+    const post = await postDao.post(
         userId,
         postImage,
         postParagraph
@@ -16,8 +12,7 @@ const createPosts = async ( userId, postImage, postParagraph ) => {
 
 const getAllPosts = async ( ) => {
     try {
-        const allPost = await getPostDao.getAllPosts();
-        return allPost;
+        return postDao.getAllPosts();
     } catch (err) {
         const error = new Error('Could not get post');
         error.statusCode = 404;
@@ -27,10 +22,9 @@ const getAllPosts = async ( ) => {
 
 const getUserPosts = async ( userId ) => {
     try {
-        const userPost = await getPostDao.getUserPosts(
+        return postDao.getUserPosts(
             userId
         );
-        return userPost;
     } catch (err) {
         const error = new Error('Could not get post');
         error.statusCode = 404;
@@ -40,11 +34,10 @@ const getUserPosts = async ( userId ) => {
 
 const deletePosts = async ( userId, postId ) => {
     try {
-        const deletePost = await deletePostDao.deletePost(
+        return postDao.deletePost(
             userId,
             postId
         );
-        return deletePost;
     } catch(err){
         const error = new Error('Could not delete post');
         error.statusCode = 404;
@@ -54,7 +47,7 @@ const deletePosts = async ( userId, postId ) => {
 };
 
 const editPosts = async ( userId, postId, postContent ) => {
-    return await editPostDao.changePosts(
+    return await postDao.changePosts(
         userId,
         postId,
         postContent

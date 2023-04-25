@@ -8,7 +8,7 @@ const createPosts = async ( req, res ) => {
             return res.status(400).json({ 
                 message: "Cannot Create Post" 
             });
-        
+    
         await postService.createPosts( userId, postImage, postParagraph );
         return res.status(201).json({
             message: "Post Created"

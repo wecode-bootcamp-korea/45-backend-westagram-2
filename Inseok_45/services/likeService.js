@@ -4,21 +4,20 @@ const likePosts = async ( userId, postId ) => {
     try {
         const result = await likeDao.checkLike(userId, postId);
 
-        if(result === 0) {
+        if(!result) {
             await likeDao.createLike(userId, postId);
 
-            return "Like Successful"
-        } else {
+            return true;
+        }
             await likeDao.deleteLike(userId, postId);
 
-            return "Unlike Successful"
-        }
+            return false;
+        
     } catch (e) {
         const error = new Error('CANNOT_PROCESS_REQUEST');
         error.statusCode = 400;
         throw error;
     }
-     
 
 };
 

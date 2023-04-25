@@ -10,9 +10,12 @@ const likePosts = async ( req, res ) => {
             });
 
         await likeService.likePosts( userId, postId );
-        return res.status(201).json({
-            message: "Liked Post"
-        });
+
+
+        if( true )
+            return res.status(201).json({
+                message: "Liked Post"
+            })
         
     } catch (err) {
         console.log(err);
