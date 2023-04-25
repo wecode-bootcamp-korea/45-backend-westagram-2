@@ -1,22 +1,4 @@
-const { DataSource } = require("typeorm");
-
-const dataSource = new DataSource({
-  type: process.env.DB_CONNECTION,
-  host: process.env.DB_HOST,
-  port: process.env.DB_PORT,
-  username: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_DATABASE,
-});
-
-dataSource
-  .initialize()
-  .then(() => {
-    console.log("Data Source has been initialized!");
-  })
-  .catch((err) => {
-    console.log("Error during Data Source initialization", err);
-  });
+const dataSource = require("./dataSource");
 
 const createPost = async (userId, postContent, postImage) => {
   try {
@@ -43,7 +25,6 @@ const createPost = async (userId, postContent, postImage) => {
 
 const deletePost = async (userId, postId) => {
   try {
-    console.log(userId, postId);
     return await dataSource.query(
       `DELETE FROM posts
         WHERE (posts.user_id = ? AND posts.id = ?)

@@ -7,6 +7,17 @@ const routes = require("./routes");
 
 const app = express();
 
+const dataSource = require("./models/dataSource");
+
+dataSource
+  .initialize()
+  .then(() => {
+    console.log("Data Source has been initialized!");
+  })
+  .catch((err) => {
+    console.log("Error during Data Source initialization", err);
+  });
+
 app.use(cors());
 app.use(morgan("dev"));
 app.use(express.json());
