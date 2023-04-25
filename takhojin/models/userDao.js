@@ -1,8 +1,12 @@
 const dataSource = require("./dataSource");
 
-const createUser = async (email, password, description, profile_img) => {
+const createUser = async (email, password, description, profileImg) => {
   try {
-    return await dataSource.query(
+    console.log(email);
+    console.log(password);
+    console.log(description);
+    console.log(profileImg);
+    await dataSource.query(
       `INSERT INTO users (
           email,
           password,
@@ -10,7 +14,7 @@ const createUser = async (email, password, description, profile_img) => {
           profile_image
         ) VALUES (?,?,?,?);
         `,
-      [email, password, description, profile_img]
+      [email, password, description, profileImg]
     );
   } catch (err) {
     console.log(err);

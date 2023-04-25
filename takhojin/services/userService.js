@@ -1,12 +1,25 @@
 const userDao = require("../models/userDao");
 const { pwValidation } = require("../utils/validation-check");
+const bcrypt = require("bcrypt");
 
-const signUp = async (email, password, description, profile_img) => {
+const salt = 13;
+
+const makeHash = async (password, salt) => {
+  return await bcrypt.hash(password, salt);
+};
+
+const signUp = async (email, password, description, profileImg) => {
   await pwValidation(password);
 
-  const createUser = await userDao.createUser(email, description, profile_img);
-  return createUser;
+  const hashPassword = await makeHash(password, salt);
+  return (createUser = await userDao.createUser(
+    email,
+    hashPassword,
+    description,
+    profileImg
+  ));
 };
+
 const searchUserPost = async (userId) => {
   const search = await userDao.searchUserPost(userId);
   return search;
