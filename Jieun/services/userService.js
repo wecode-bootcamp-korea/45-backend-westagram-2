@@ -1,4 +1,8 @@
 const userDao = require("../models/userDao");
+const {
+  passwordValidationCheck,
+  emailValidationCheck,
+} = require("../utils/validation-check");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
@@ -13,14 +17,9 @@ const checkHash = async (password, hashedPassword) => {
 };
 
 const signUp = async (name, profileImage, email, password, phoneNumber) => {
-  const pwValidation = new RegExp(
-    "^(?=.*[A-Za-z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,20})"
-  );
-  if (!pwValidation.test(password)) {
-    const err = new Error("PASSWORD_IS_NOT_VALID");
-    err.statusCode = 409;
-    throw err;
-  }
+  await passwordValidationCheck(password);
+  await emailValidationCheck(email);
+
   const hashedPassword = await makeHash(password, saltRounds);
   return userDao.createUser(
     name,
