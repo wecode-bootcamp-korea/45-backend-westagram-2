@@ -54,6 +54,7 @@ const loginUser = async (email) => {
   try {
     return dataSource.query(
       `SELECT
+      id,
       password
       FROM users
       WHERE email =?

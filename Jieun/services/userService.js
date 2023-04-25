@@ -38,7 +38,7 @@ const login = async (email, password) => {
     err.statusCode = 409;
     throw err;
   }
-  const payLoad = { foo: password };
+  const payLoad = { userId: hashedPassword.id };
   return jwt.sign(payLoad, process.env.secretKey);
 };
 
