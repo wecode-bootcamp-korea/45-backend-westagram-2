@@ -1,4 +1,4 @@
-const passwordValidationCheck = (password) => {
+const passwordRegex = (password) => {
   const pwVal = new RegExp(
     "^(?=.*[A-Za-z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,20})"
   );
@@ -9,7 +9,7 @@ const passwordValidationCheck = (password) => {
   }
 };
 
-const emailValidationCheck = (email) => {
+const emailRegex = (email) => {
   const emailVal = new RegExp(
     "^[a-zA-Z0-9_+.-]+@([a-zA-Z0-9-])+[.][a-z]{2,3}$"
   );
@@ -20,4 +20,4 @@ const emailValidationCheck = (email) => {
   }
 };
 
-module.exports = { emailValidationCheck, passwordValidationCheck };
+module.exports = { emailRegex, passwordRegex };
