@@ -1,5 +1,7 @@
-const userDao = require('../models/userDao');
+const jwt = require('jsonwebtoken');
 const bcrypt = require("bcrypt");
+const userDao = require('../models/userDao');
+
 
 const signUp = async( firstName, lastName, email, phoneNumber, age, userName, password ) => {
     
@@ -19,18 +21,20 @@ const signUp = async( firstName, lastName, email, phoneNumber, age, userName, pa
     return createUser;
 };
 
-const login = async ( userName, password ) => {
+const getUserById = async ( userName, password ) => {
     try{
-        const [dbPassword] = await userDao.login(userName);
+        const [dbPassword] = await userDao.getUserById(userName);
+        const userId = dbPassword.id;
         const hashedPassword = dbPassword.password;
-        const userEmail = dbPassword.email
         const result = await bcrypt.compare(password, hashedPassword);
-        const tokenInfo = {
-            "exists" : result,
-            "email" : userEmail
-        }
-        
-        return tokenInfo;
+
+        if(!result) return res.status(400).json({ message: "Invalid User" });
+
+        const userInfo = { id: userId };
+        const secretKey = process.env.JWT_SECRETKEY;
+        const options = { expiresIn: '10h', issuer: 'inni' };
+        const token = jwt.sign(userInfo, secretKey, options);
+        return token;
 
     } catch(err) {
         const error = new Error('Could not get data');
@@ -40,4 +44,4 @@ const login = async ( userName, password ) => {
 };
 
 
-module.exports = { signUp, login };
+module.exports = { signUp, getUserById };

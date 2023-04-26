@@ -21,11 +21,11 @@ const createUser = async ( firstName, lastName, email, phoneNumber, age, userNam
     };
 };
 
-const login = async ( userName ) => {
+const getUserById = async ( userName ) => {
     try {
         return await dataSource.query(
             `SELECT
-            users.email,
+            users.id,
             users.password
             FROM users
             WHERE users.user_name = ?
@@ -38,4 +38,4 @@ const login = async ( userName ) => {
     }
 }
 
-module.exports = { createUser, login };
+module.exports = { createUser, getUserById };

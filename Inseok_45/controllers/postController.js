@@ -1,16 +1,19 @@
 const postService = require('../services/postService');
+const { validateToken } = require('../middlewares/validate-jwt');
 
 const createPosts = async ( req, res ) => {
     
     try {
         const { userId, postImage, postParagraph } = req.body
-
-        if( !userId || !postImage )
-            return res.status(400).json({ 
-                message: "Cannot Create Post" 
-            });
+        const id = req.user;
+        console.log("inside controller " + id);
+        console.log("userId = " + userId);
+        
+        if( userId !== id ) return res.status(400).json({ message: "Invalid User" });
+        if( !userId || !postImage ) return res.status(400).json({ message: "Cannot Create Post" });
     
-        await postService.createPosts( userId, postImage, postParagraph );
+        await postService.createPosts(id, postImage, postParagraph);
+        return res.status(201).json({ message: "Post Created" });
         
     } catch (err) {
         console.log(err);

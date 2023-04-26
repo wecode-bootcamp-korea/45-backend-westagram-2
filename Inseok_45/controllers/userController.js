@@ -1,6 +1,7 @@
+const jwt = require('jsonwebtoken');
 const userService = require('../services/userService');
 const { emailValidationCheck, passwordValidationCheck } = require('../utils/validation-check');
-const jwt = require('jsonwebtoken');
+
 
 const signUp = async ( req, res ) => {
     try {
@@ -24,31 +25,18 @@ const signUp = async ( req, res ) => {
     };
 };
 
-const login = async (req, res) => {
+const getUserById = async (req, res) => {
     try{
         const { userName, password } = req.body;
-        if(!userName){
-            return res.status(400).json({ message: "Username Required" });
-        } else if(!password){
-            return res.status(400).json({ message: "Password Required" });
-        }
-        
-        const result = await userService.login(userName, password);
-        const trueFalse = result.exists;
-        const userEmail = result.email;
+        if(!userName || !password) return res.status(400).json({ message: "INVALID_KEY" });
 
-        if(!trueFalse) return res.status(400).json({ message: "Invalid User" });
-            
-        const userInfo = { email: userEmail };
-        const secretKey = process.env.JWT_SECRETKEY;
-        const options = { expiresIn: '10h', issuer: 'inni' };
-        const token = jwt.sign(userInfo, secretKey, options)
-        return res.status(200).json({ accessToken: token });
-
+        const token = await userService.getUserById(userName, password);
+        console.log(token)
+        return res.status(201).json({ accessToken : token })
     } catch (err) {
         console.log(err);
         return res.status(err.statusCode || 401).json({ message: err.message });
     };
 };
 
-module.exports = { signUp, login };
+module.exports = { signUp, getUserById };
