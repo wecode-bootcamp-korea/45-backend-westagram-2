@@ -6,7 +6,6 @@ const router = express.Router();
 router.post("/signup", userController.signUp);
 router.get("/userSearchPost", userController.searchUserPost);
 router.patch("/user", userController.updateUserPost);
-router.get("/login", userController.login);
 
 module.exports = {
   router,
