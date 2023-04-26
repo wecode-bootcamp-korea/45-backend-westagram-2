@@ -1,18 +1,20 @@
+const bcrypt = require("bcrypt");
+
 const createUserDao = require("../models/UserDao");
 const pwValidationCheck = require("../utils/validation-check.js");
 
 const signUp = async (email, password, name, age, phoneNumber) => {
   await pwValidationCheck(password);
 
-  const createUser = await createUserDao.createUser(
+  const hashedPassword = await bcrypt.hash(password, 12);
+
+  return createUserDao.createUser(
     email,
-    password,
+    hashedPassword,
     name,
     age,
     phoneNumber
   );
-
-  return createUser;
 };
 
 module.exports = {
