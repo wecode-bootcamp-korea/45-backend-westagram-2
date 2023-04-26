@@ -1,12 +1,6 @@
 const userDao = require("../models/userDao");
 const bcrypt = require("bcrypt");
 
-const saltRounds = 10;
-
-const makeHash = async (password, saltRounds) => {
-  return bcrypt.hash(password, saltRounds);
-};
-
 const signUp = async (name, profileImage, email, password, phoneNumber) => {
   const pwValidation = new RegExp(
     "^(?=.*[A-Za-z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,20})"
@@ -16,7 +10,8 @@ const signUp = async (name, profileImage, email, password, phoneNumber) => {
     err.statusCode = 409;
     throw err;
   }
-  const hashedPassword = await makeHash(password, saltRounds);
+  const saltRounds = 10;
+  const hashedPassword = await bcrypt.hash(password, saltRounds);
   const createUser = await userDao.createUser(
     name,
     profileImage,
