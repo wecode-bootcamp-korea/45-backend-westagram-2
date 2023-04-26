@@ -12,7 +12,7 @@ const signUp = async (email, password, name, age, phoneNumber) => {
 };
 
 const getUserByEmail = async (email, password) => {
-  const [user] = await userDao.getUserByEmail(email);
+  const user = await userDao.getUserByEmail(email);
 
   if (!user || !bcrypt.compare(password, user.password))
     throw new Error("Invalid Email or Password");

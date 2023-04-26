@@ -29,7 +29,7 @@ const createUser = async (email, password, name, age, phoneNumber) => {
 
 const getUserByEmail = async (email) => {
   try {
-    return await dataSource.query(
+    const result = await dataSource.query(
       `SELECT
             u.password,
             u.id
@@ -38,6 +38,7 @@ const getUserByEmail = async (email) => {
         `,
       [email]
     );
+    return result[0];
   } catch (err) {
     const error = new Error("errrrrror");
     error.statusCode = 500;

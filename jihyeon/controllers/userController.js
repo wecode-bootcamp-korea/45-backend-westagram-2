@@ -16,7 +16,7 @@ const signUp = async (req, res) => {
   }
 };
 
-const getUserByEmail = async (req, res) => {
+const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
@@ -30,5 +30,5 @@ const getUserByEmail = async (req, res) => {
 
 module.exports = {
   signUp,
-  getUserByEmail,
+  login,
 };
