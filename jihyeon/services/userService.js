@@ -4,10 +4,6 @@ const jwt = require("jsonwebtoken");
 const userDao = require("../models/userDao");
 const pwValidationCheck = require("../utils/validation-check.js");
 
-const checkHash = async (password, hashedPassword) => {
-  return await bcrypt.compare(password, hashedPassword);
-};
-
 const signUp = async (email, password, name, age, phoneNumber) => {
   await pwValidationCheck(password);
 
@@ -15,27 +11,16 @@ const signUp = async (email, password, name, age, phoneNumber) => {
   return userDao.createUser(email, hashedPassword, name, age, phoneNumber);
 };
 
-const login = async (email, password) => {
-  const userInfo = await userDao.login(email);
+const getUserByEmail = async (email, password) => {
+  const [user] = await userDao.getUserByEmail(email);
 
-  const storedPassword = userInfo[0]["password"];
-  const userId = userInfo[0]["id"];
+  if (!user || !bcrypt.compare(password, user.password))
+    throw new Error("Invalid Email or Password");
 
-  const checkPassword = await checkHash(password, storedPassword);
-
-  const payLoad = { user_id: userId };
-  const secretKey = process.env.SECRETKEY;
-
-  if (!checkPassword) {
-    const err = new Error("Invalid User");
-    err.statusCode = 409;
-    throw err;
-  }
-
-  return (jwtToken = jwt.sign(payLoad, secretKey));
+  return jwt.sign({ userId: user.id }, process.env.SECRETKEY);
 };
 
 module.exports = {
   signUp,
-  login,
+  getUserByEmail,
 };

@@ -16,11 +16,11 @@ const signUp = async (req, res) => {
   }
 };
 
-const login = async (req, res) => {
+const getUserByEmail = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    const accessToken = await userService.login(email, password);
+    const accessToken = await userService.getUserByEmail(email, password);
     return res.status(200).json({ accessToken });
   } catch (err) {
     console.log(err);
@@ -30,5 +30,5 @@ const login = async (req, res) => {
 
 module.exports = {
   signUp,
-  login,
+  getUserByEmail,
 };

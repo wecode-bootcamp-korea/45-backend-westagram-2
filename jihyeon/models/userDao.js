@@ -27,7 +27,7 @@ const createUser = async (email, password, name, age, phoneNumber) => {
   }
 };
 
-const login = async (email) => {
+const getUserByEmail = async (email) => {
   try {
     return await dataSource.query(
       `SELECT
@@ -47,5 +47,5 @@ const login = async (email) => {
 
 module.exports = {
   createUser,
-  login,
+  getUserByEmail,
 };
