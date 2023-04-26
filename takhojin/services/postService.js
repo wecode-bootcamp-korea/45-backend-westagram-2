@@ -1,18 +1,13 @@
-const { token } = require("morgan");
 const postDao = require("../models/postDao");
-const secreteKey = process.env.secretKey;
-const jwt = require("jsonwebtoken");
 
-const postUp = async (title, description, image, userId, token) => {
+const postUp = async (title, description, image, userId) => {
   const createPost = await postDao.createPost(
     title,
     description,
     image,
     userId
   );
-  console.log(token);
-  const decoded = jwt.verify(token, secreteKey);
-  console.log(decoded);
+
   return createPost;
 };
 
