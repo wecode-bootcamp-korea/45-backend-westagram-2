@@ -2,7 +2,8 @@ const postService = require("../services/postService");
 
 const posting = async (req, res) => {
   try {
-    const { userId, postContent, postImage } = req.body;
+    const { postContent, postImage } = req.body;
+    const userId = req.user;
 
     await postService.posting(userId, postContent, postImage);
     return res.status(201).json({ message: "postCreated" });
