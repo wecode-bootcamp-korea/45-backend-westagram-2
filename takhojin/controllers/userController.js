@@ -15,6 +15,22 @@ const signUp = async (req, res) => {
   }
 };
 
+const login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ message: "KEY_ERROR" });
+    }
+    const token = await userService.login(email, password);
+    console.log("token" + "" + token);
+    return res.status(201).json({ accessToken: token });
+  } catch (err) {
+    console.log(err);
+    return res.status(err.statusCode || 500).json({ message: err.message });
+  }
+};
+
 const searchUserPost = async (req, res) => {
   try {
     const { userId } = req.body;
@@ -50,4 +66,5 @@ module.exports = {
   signUp,
   searchUserPost,
   updateUserPost,
+  login,
 };

@@ -1,8 +1,8 @@
 const dataSource = require("./dataSource");
 
-const createUser = async (email, password, description, profile_img) => {
+const createUser = async (email, password, description, profileImg) => {
   try {
-    return await dataSource.query(
+    await dataSource.query(
       `INSERT INTO users (
           email,
           password,
@@ -10,7 +10,25 @@ const createUser = async (email, password, description, profile_img) => {
           profile_image
         ) VALUES (?,?,?,?);
         `,
-      [email, password, description, profile_img]
+      [email, password, description, profileImg]
+    );
+  } catch (err) {
+    console.log(err);
+    const error = new Error(`INVALID_DATA_INPUT`);
+    error.statusCode = 500;
+    throw error;
+  }
+};
+
+const login = async (email) => {
+  try {
+    return await dataSource.query(
+      `SELECT
+      id,
+      password
+      FROM users
+      WHERE users.email = ?`,
+      [email]
     );
   } catch (err) {
     console.log(err);
@@ -71,4 +89,5 @@ module.exports = {
   createUser,
   searchUserPost,
   updateUserPost,
+  login,
 };
