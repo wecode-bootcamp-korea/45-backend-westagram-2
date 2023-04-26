@@ -23,6 +23,7 @@ const searchUserPost = async (req, res) => {
       return res.status(400).json({ message: "KEY_ERROR" });
     }
     const data = await userService.searchUserPost(userId);
+
     return res.status(201).json({ message: data });
   } catch (err) {
     console.log(err);

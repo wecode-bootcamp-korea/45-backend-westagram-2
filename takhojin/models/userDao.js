@@ -24,18 +24,18 @@ const searchUserPost = async (userId) => {
   try {
     return await dataSource.query(
       `SELECT
-     users.id as usersId,
-     users.email as usersEmail,
-     users.profile_image as usersProfileImage,
+      users.id,
+      users.email,
+      users.profile_image,
       JSON_ARRAYAGG(
-        JSON_OBJECT(   
-        "postUsersId" , posts.user_id,
-         "postTitle" , posts.title,
-         "postDescription" , posts.description,
-         "postImage", posts.image,
-         "postId", posts.id
-        )
-       ) as posting
+        JSON_OBJECT(
+          "postUsersId" , posts.user_id,
+          "postTitle" , posts.title,
+          "postDescription" , posts.description,
+          "postImage", posts.image,
+          "postId", posts.id
+        ) 
+        )as posting
       FROM users
       JOIN posts ON users.id = posts.user_id
       WHERE users.id = ?
