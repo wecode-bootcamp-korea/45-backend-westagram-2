@@ -33,7 +33,6 @@ const login = async (email, password) => {
 
   const checkResult = await checkHash(password, hashedPassword);
 
-  console.log(checkResult);
   if (checkResult === true) {
     const payLoad = { userId: hashedPasswordId };
     return await jwt.sign(payLoad, secretKey);
