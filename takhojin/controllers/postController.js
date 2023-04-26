@@ -4,10 +4,13 @@ const postUp = async (req, res) => {
   try {
     const { title, description, image, userId } = req.body;
 
+    const token = req.headers.accesstoken;
+    console.log(token);
+
     if (!title || !description || !userId) {
       return res.status(400).json({ message: "KEY_ERROR" });
     }
-    await postService.postUp(title, description, image, userId);
+    await postService.postUp(title, description, image, userId, token);
     return res.status(201).json({ message: "POSTUP_SUCCESS" });
   } catch (err) {
     console.log(err);
