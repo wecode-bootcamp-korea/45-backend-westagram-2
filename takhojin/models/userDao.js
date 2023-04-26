@@ -2,10 +2,6 @@ const dataSource = require("./dataSource");
 
 const createUser = async (email, password, description, profileImg) => {
   try {
-    console.log(email);
-    console.log(password);
-    console.log(description);
-    console.log(profileImg);
     await dataSource.query(
       `INSERT INTO users (
           email,
@@ -24,22 +20,40 @@ const createUser = async (email, password, description, profileImg) => {
   }
 };
 
+const login = async (email) => {
+  try {
+    return await dataSource.query(
+      `SELECT
+      id,
+      password
+      FROM users
+      WHERE users.email = ?`,
+      [email]
+    );
+  } catch (err) {
+    console.log(err);
+    const error = new Error(`INVALID_DATA_INPUT`);
+    error.statusCode = 500;
+    throw error;
+  }
+};
+
 const searchUserPost = async (userId) => {
   try {
     return await dataSource.query(
       `SELECT
-     users.id as usersId,
-     users.email as usersEmail,
-     users.profile_image as usersProfileImage,
+      users.id,
+      users.email,
+      users.profile_image,
       JSON_ARRAYAGG(
-        JSON_OBJECT(   
-        "postUsersId" , posts.user_id,
-         "postTitle" , posts.title,
-         "postDescription" , posts.description,
-         "postImage", posts.image,
-         "postId", posts.id
-        )
-       ) as posting
+        JSON_OBJECT(
+          "postUsersId" , posts.user_id,
+          "postTitle" , posts.title,
+          "postDescription" , posts.description,
+          "postImage", posts.image,
+          "postId", posts.id
+        ) 
+        )as posting
       FROM users
       JOIN posts ON users.id = posts.user_id
       WHERE users.id = ?
@@ -75,4 +89,5 @@ module.exports = {
   createUser,
   searchUserPost,
   updateUserPost,
+  login,
 };
