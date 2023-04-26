@@ -22,13 +22,16 @@ const signUp = async (name, profileImage, email, password, phoneNumber) => {
 };
 
 const login = async (email, password) => {
-  const [user] = await userDao.getUserByEmail(email);
+  const user = await userDao.getUserByEmail(email);
+  console.log("user: ", user);
+
   if (!user || !bcrypt.compare(password, user.password))
     throw new Error("Invalid Email or Password");
 
   const exp = process.env.JWT_EXP;
   const issuer = process.env.JWT_ISSUER;
   const option = { expiresIn: exp, issuer: issuer };
+
   return jwt.sign({ userId: user.id }, process.env.JWT_SECRET, option);
 };
 

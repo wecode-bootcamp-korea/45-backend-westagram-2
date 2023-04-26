@@ -53,7 +53,7 @@ const isUserExisted = async (userId) => {
 
 const getUserByEmail = async (email) => {
   try {
-    return dataSource.query(
+    const result = await dataSource.query(
       `SELECT
       id,
       password
@@ -62,6 +62,7 @@ const getUserByEmail = async (email) => {
       `,
       [email]
     );
+    return result[0];
   } catch (err) {
     const error = new Error("INVALID_DATA_INPUT");
     error.statusCode = 500;
