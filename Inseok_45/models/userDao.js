@@ -11,7 +11,8 @@ const createUser = async ( firstName, lastName, email, phoneNumber, age, userNam
                 age,
                 user_name,
                 password
-            ) VALUES ( ?, ?, ?, ?, ?, ?, ?)`, [ firstName, lastName, email, phoneNumber, age, userName, hashedPassword ]
+            ) VALUES ( ?, ?, ?, ?, ?, ?, ?)
+            `, [ firstName, lastName, email, phoneNumber, age, userName, hashedPassword ]
         );
     } catch (err) {
         const error = new Error('INVALID_DATA_INPUT');
@@ -20,10 +21,11 @@ const createUser = async ( firstName, lastName, email, phoneNumber, age, userNam
     };
 };
 
-const login = async ( userName, password ) => {
+const login = async ( userName ) => {
     try {
         return await dataSource.query(
             `SELECT
+            users.email,
             users.password
             FROM users
             WHERE users.user_name = ?
@@ -35,6 +37,5 @@ const login = async ( userName, password ) => {
         throw error;
     }
 }
-
 
 module.exports = { createUser, login };

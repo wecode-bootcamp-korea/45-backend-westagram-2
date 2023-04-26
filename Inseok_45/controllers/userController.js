@@ -1,6 +1,6 @@
 const userService = require('../services/userService');
 const { emailValidationCheck, passwordValidationCheck } = require('../utils/validation-check');
-const jwtToken = require('../utils/jwt')
+const jwt = require('jsonwebtoken');
 
 const signUp = async ( req, res ) => {
     try {
@@ -13,7 +13,6 @@ const signUp = async ( req, res ) => {
 
         await emailValidationCheck(email);
         await passwordValidationCheck(password);
-        
         await userService.signUp( firstName, lastName, email, phoneNumber, age, userName, password );
         return res.status(201).json({ 
             message: "userCreated"
@@ -28,20 +27,23 @@ const signUp = async ( req, res ) => {
 const login = async (req, res) => {
     try{
         const { userName, password } = req.body;
-
         if(!userName){
             return res.status(400).json({ message: "Username Required" });
         } else if(!password){
             return res.status(400).json({ message: "Password Required" });
         }
         
-        let result = await userService.login( userName, password );
+        const result = await userService.login(userName, password);
+        const trueFalse = result.exists;
+        const userEmail = result.email;
 
-        if(result === true){
-            return res.status(200).json({ accessToken: jwtToken });
-        } else {
-            return res.status(400).json({ message: "Invalid User" })
-        }
+        if(!trueFalse) return res.status(400).json({ message: "Invalid User" });
+            
+        const userInfo = { email: userEmail };
+        const secretKey = process.env.JWT_SECRETKEY;
+        const options = { expiresIn: '10h', issuer: 'inni' };
+        const token = jwt.sign(userInfo, secretKey, options)
+        return res.status(200).json({ accessToken: token });
 
     } catch (err) {
         console.log(err);

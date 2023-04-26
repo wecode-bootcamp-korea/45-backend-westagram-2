@@ -3,17 +3,8 @@ const bcrypt = require("bcrypt");
 
 const signUp = async( firstName, lastName, email, phoneNumber, age, userName, password ) => {
     
-    const saltRounds = 12;
-    const makeHash = async(password, saltRounds) => {
-        return await bcrypt.hash(password, saltRounds);
-    }
-
-    const main = async (password) => {
-        const hashedPassword = await makeHash(password, saltRounds);
-        return hashedPassword
-    }
-
-    const hashedPassword = main(password);
+    const saltRounds = Number(process.env.SALT_ROUND);
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
 
     const createUser = await userDao.createUser(
         firstName,
@@ -25,17 +16,21 @@ const signUp = async( firstName, lastName, email, phoneNumber, age, userName, pa
         hashedPassword
     );
 
-        return createUser;
+    return createUser;
 };
 
 const login = async ( userName, password ) => {
     try{
-        const [dbPassword] = await userDao.login( userName, password) ;
+        const [dbPassword] = await userDao.login(userName);
         const hashedPassword = dbPassword.password;
-
+        const userEmail = dbPassword.email
         const result = await bcrypt.compare(password, hashedPassword);
-
-        return result;
+        const tokenInfo = {
+            "exists" : result,
+            "email" : userEmail
+        }
+        
+        return tokenInfo;
 
     } catch(err) {
         const error = new Error('Could not get data');
