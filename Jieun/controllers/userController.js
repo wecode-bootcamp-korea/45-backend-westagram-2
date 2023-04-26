@@ -12,7 +12,7 @@ const signUp = async (req, res) => {
     return res.status(201).json({ message: "userCreated" });
   } catch (err) {
     console.log(err);
-    return res.status(err.statusCode || 500).json({ message: err.message });
+    return res.status(err.statusCode || 500).json({ accessToken: err.message });
   }
 };
 
