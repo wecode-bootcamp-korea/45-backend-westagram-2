@@ -22,9 +22,9 @@ const login = async (req, res) => {
     if (!email || !password) {
       return res.status(400).json({ message: "KEY_ERROR" });
     }
-    const token = await userService.login(email, password);
-    console.log("token" + "" + token);
-    return res.status(201).json({ accessToken: token });
+    const Autorization = await userService.login(email, password);
+
+    return res.status(200).json({ Autorization });
   } catch (err) {
     console.log(err);
     return res.status(err.statusCode || 500).json({ message: err.message });

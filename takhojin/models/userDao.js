@@ -20,7 +20,7 @@ const createUser = async (email, password, description, profileImg) => {
   }
 };
 
-const login = async (email) => {
+const getUserByEmail = async (email) => {
   try {
     return await dataSource.query(
       `SELECT
@@ -89,5 +89,5 @@ module.exports = {
   createUser,
   searchUserPost,
   updateUserPost,
-  login,
+  getUserByEmail,
 };
