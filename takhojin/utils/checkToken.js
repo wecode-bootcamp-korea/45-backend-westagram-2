@@ -2,15 +2,18 @@ const secreteKey = process.env.secretKey;
 const jwt = require("jsonwebtoken");
 
 const checkToken = async (req, res, next) => {
-  const token = req.headers.authorization;
   try {
-    jwt.verify(token, secreteKey);
+    const token = req.headers.authorization;
+
+    if (!token) new Error("INVALID_ACCESS_TOKEN");
+
+    const decoded = jwt.verify(token, secreteKey);
+
+    req.user = decoded.userId;
+
     next();
   } catch {
-    const err = new Error("INVALID_ACCESS_TOKEN");
-    console.log(err);
-    err.statuscode = 400;
-    res.status(400).json({ message: err.message });
+    res.status(401).json({ message: "INVALID_ACCESS_TOKEN" });
   }
 };
 module.exports = {
