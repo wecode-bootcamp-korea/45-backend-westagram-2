@@ -2,7 +2,8 @@ const postService = require("../services/postService");
 
 const postUp = async (req, res) => {
   try {
-    const { title, description, image, userId } = req.body;
+    const { title, description, image } = req.body;
+    const userId = req.user;
 
     if (!title || !description || !userId) {
       return res.status(400).json({ message: "KEY_ERROR" });

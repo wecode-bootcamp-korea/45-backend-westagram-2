@@ -2,7 +2,7 @@ const dataSource = require("./dataSource");
 
 const createPost = async (title, description, image, user_id) => {
   try {
-    return await dataSource.query(
+    await dataSource.query(
       `INSERT INTO posts(
         title,
         description,

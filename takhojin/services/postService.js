@@ -7,6 +7,7 @@ const postUp = async (title, description, image, userId) => {
     image,
     userId
   );
+
   return createPost;
 };
 
