@@ -1,11 +1,9 @@
 const postDao = require('../models/postDao');
 
-const createPosts = async ( id, postImage, postParagraph ) => {
-    
-    console.log("inside service " + id);
+const createPosts = async ( userId, postImage, postParagraph ) => {
     
     const post = await postDao.createPosts(
-        id,
+        userId,
         postImage,
         postParagraph
     );

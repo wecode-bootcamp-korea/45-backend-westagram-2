@@ -21,20 +21,13 @@ const signUp = async( firstName, lastName, email, phoneNumber, age, userName, pa
     return createUser;
 };
 
-const getUserById = async ( userName, password ) => {
+const getUserByName = async ( userName, password ) => {
     try{
-        const [dbPassword] = await userDao.getUserById(userName);
-        const userId = dbPassword.id;
-        const hashedPassword = dbPassword.password;
-        const result = await bcrypt.compare(password, hashedPassword);
+        const user = await userDao.getUserByName(userName);
 
-        if(!result) return res.status(400).json({ message: "Invalid User" });
-
-        const userInfo = { id: userId };
-        const secretKey = process.env.JWT_SECRETKEY;
-        const options = { expiresIn: '10h', issuer: 'inni' };
-        const token = jwt.sign(userInfo, secretKey, options);
-        return token;
+        if (!user || !bcrypt.compare(password, user.password)) throw new Error("Invalid UserName or Password");
+        
+        return jwt.sign({ id: user.id }, process.env.JWT_SECRETKEY, { expiresIn: '10h', issuer: 'inni' });     
 
     } catch(err) {
         const error = new Error('Could not get data');
@@ -43,5 +36,17 @@ const getUserById = async ( userName, password ) => {
     };
 };
 
+const checkExist = async (userId) => {
+    try{
+        const user = await userDao.checkUserById(userId);
+        const checkedId = user.id
+        return checkedId;
+    } catch(err){
+        const error = new Error('CAN_NOT_FIND_USER');
+        error.statusCode = 400;
+        throw error;
+    }
+}
 
-module.exports = { signUp, getUserById };
+
+module.exports = { signUp, getUserByName, checkExist };

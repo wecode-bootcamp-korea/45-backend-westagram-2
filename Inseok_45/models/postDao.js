@@ -1,13 +1,13 @@
 const dataSource  = require('./dataSource');
 
-const createPosts = async ( id, postImage, postParagraph ) => {
+const createPosts = async ( userId, postImage, postParagraph ) => {
     try {
         return await dataSource.query(
             `INSERT INTO posts(
                 user_id,
                 post_image,
                 post_paragraph
-            ) VALUES ( ?, ?, ?)`, [ id, postImage, postParagraph ]
+            ) VALUES ( ?, ?, ?)`, [ userId, postImage, postParagraph ]
         );
         } catch (err) {
         const error = new Error('INVALID_DATA_INPUT');

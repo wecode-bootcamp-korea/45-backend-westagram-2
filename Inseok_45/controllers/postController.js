@@ -1,18 +1,14 @@
 const postService = require('../services/postService');
-const { validateToken } = require('../middlewares/validate-jwt');
 
 const createPosts = async ( req, res ) => {
     
     try {
-        const { userId, postImage, postParagraph } = req.body
-        const id = req.user;
-        console.log("inside controller " + id);
-        console.log("userId = " + userId);
-        
-        if( userId !== id ) return res.status(400).json({ message: "Invalid User" });
-        if( !userId || !postImage ) return res.status(400).json({ message: "Cannot Create Post" });
+        const { postImage, postParagraph } = req.body
+        const userId = req.user;
+
+        if( !postImage || !postParagraph ) return res.status(400).json({ message: "KEY_ERROR" });
     
-        await postService.createPosts(id, postImage, postParagraph);
+        await postService.createPosts(userId, postImage, postParagraph);
         return res.status(201).json({ message: "Post Created" });
         
     } catch (err) {
@@ -28,8 +24,8 @@ const getAllPosts = async ( req, res ) => {
     } catch (err) {
         console.log(err);
         return res.status(400).json({ message: "Cannot get posts" });
-    }
-}
+    };
+};
 
 const getUserPosts = async ( req, res ) => {
     try {
@@ -69,7 +65,7 @@ const deletePosts = async ( req, res ) => {
             message: err.message 
         });
     };
-}
+};
 
 const editPosts = async ( req, res ) => {
     try {
@@ -88,9 +84,9 @@ const editPosts = async ( req, res ) => {
         console.log(err);
         return res.status(err.statusCode || 500).json({
             message: err.message
-        })
-    }
-}
+        });
+    };
+};
 
 
 
