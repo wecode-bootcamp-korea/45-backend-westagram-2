@@ -1,18 +1,16 @@
 const postService = require('../services/postService');
 
 const createPosts = async ( req, res ) => {
-    try {
-        const { userId, postImage, postParagraph } = req.body
-
-        if( !userId || !postImage )
-            return res.status(400).json({ 
-                message: "Cannot Create Post" 
-            });
     
-        await postService.createPosts( userId, postImage, postParagraph );
-        return res.status(201).json({
-            message: "Post Created"
-        });
+    try {
+        const { postImage, postParagraph } = req.body
+        const userId = req.user;
+
+        if( !postImage || !postParagraph ) return res.status(400).json({ message: "KEY_ERROR" });
+    
+        await postService.createPosts(userId, postImage, postParagraph);
+        return res.status(201).json({ message: "Post Created" });
+        
     } catch (err) {
         console.log(err);
         return res.status(err.statusCode || 500).json({ message: err.message });
@@ -26,8 +24,8 @@ const getAllPosts = async ( req, res ) => {
     } catch (err) {
         console.log(err);
         return res.status(400).json({ message: "Cannot get posts" });
-    }
-}
+    };
+};
 
 const getUserPosts = async ( req, res ) => {
     try {
@@ -67,7 +65,7 @@ const deletePosts = async ( req, res ) => {
             message: err.message 
         });
     };
-}
+};
 
 const editPosts = async ( req, res ) => {
     try {
@@ -86,9 +84,9 @@ const editPosts = async ( req, res ) => {
         console.log(err);
         return res.status(err.statusCode || 500).json({
             message: err.message
-        })
-    }
-}
+        });
+    };
+};
 
 
 

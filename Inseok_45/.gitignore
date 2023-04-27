@@ -4,7 +4,7 @@
 .env
 node_modules/
 schema.sql
-
+validation-check.js
 
 ### Linux ###
 *~

@@ -1,6 +1,6 @@
 const dataSource  = require('./dataSource');
 
-const post = async ( userId, postImage, postParagraph ) => {
+const createPosts = async ( userId, postImage, postParagraph ) => {
     try {
         return await dataSource.query(
             `INSERT INTO posts(
@@ -97,4 +97,4 @@ const changePosts = async ( userId, postId, postContent) => {
 }
 
 
-module.exports = { post, getAllPosts, getUserPosts, deletePost, changePosts };
+module.exports = { createPosts, getAllPosts, getUserPosts, deletePost, changePosts };
